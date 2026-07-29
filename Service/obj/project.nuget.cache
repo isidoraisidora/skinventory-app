@@ -1,0 +1,150 @@
+{
+  "version": 2,
+  "dgSpecHash": "G/prTmUN84E=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\isido\\RiderProjects\\SkinInventoryApp\\Service\\Service.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.aspnetcore.authentication\\2.3.9\\microsoft.aspnetcore.authentication.2.3.9.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.aspnetcore.authentication.abstractions\\2.3.0\\microsoft.aspnetcore.authentication.abstractions.2.3.0.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.aspnetcore.authentication.cookies\\2.3.10\\microsoft.aspnetcore.authentication.cookies.2.3.10.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.aspnetcore.authentication.core\\2.3.0\\microsoft.aspnetcore.authentication.core.2.3.0.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.aspnetcore.cryptography.internal\\10.0.10\\microsoft.aspnetcore.cryptography.internal.10.0.10.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.aspnetcore.cryptography.keyderivation\\10.0.10\\microsoft.aspnetcore.cryptography.keyderivation.10.0.10.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.aspnetcore.dataprotection\\2.3.0\\microsoft.aspnetcore.dataprotection.2.3.0.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.aspnetcore.dataprotection.abstractions\\2.3.0\\microsoft.aspnetcore.dataprotection.abstractions.2.3.0.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.aspnetcore.hosting.abstractions\\2.3.10\\microsoft.aspnetcore.hosting.abstractions.2.3.10.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.aspnetcore.hosting.server.abstractions\\2.3.9\\microsoft.aspnetcore.hosting.server.abstractions.2.3.9.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.aspnetcore.http\\2.3.0\\microsoft.aspnetcore.http.2.3.0.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.aspnetcore.http.abstractions\\2.3.9\\microsoft.aspnetcore.http.abstractions.2.3.9.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.aspnetcore.http.extensions\\2.3.0\\microsoft.aspnetcore.http.extensions.2.3.0.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.aspnetcore.http.features\\2.3.0\\microsoft.aspnetcore.http.features.2.3.0.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.aspnetcore.identity\\2.3.11\\microsoft.aspnetcore.identity.2.3.11.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.aspnetcore.identity.entityframeworkcore\\10.0.10\\microsoft.aspnetcore.identity.entityframeworkcore.10.0.10.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.aspnetcore.webutilities\\2.3.0\\microsoft.aspnetcore.webutilities.2.3.0.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.entityframeworkcore\\10.0.10\\microsoft.entityframeworkcore.10.0.10.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.entityframeworkcore.abstractions\\10.0.10\\microsoft.entityframeworkcore.abstractions.10.0.10.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.entityframeworkcore.analyzers\\10.0.10\\microsoft.entityframeworkcore.analyzers.10.0.10.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.entityframeworkcore.relational\\10.0.10\\microsoft.entityframeworkcore.relational.10.0.10.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.extensions.caching.abstractions\\10.0.10\\microsoft.extensions.caching.abstractions.10.0.10.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.extensions.caching.memory\\10.0.10\\microsoft.extensions.caching.memory.10.0.10.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.extensions.configuration\\10.0.10\\microsoft.extensions.configuration.10.0.10.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\10.0.10\\microsoft.extensions.configuration.abstractions.10.0.10.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.extensions.configuration.binder\\10.0.10\\microsoft.extensions.configuration.binder.10.0.10.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\10.0.10\\microsoft.extensions.dependencyinjection.10.0.10.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\10.0.10\\microsoft.extensions.dependencyinjection.abstractions.10.0.10.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.extensions.diagnostics\\10.0.10\\microsoft.extensions.diagnostics.10.0.10.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.extensions.diagnostics.abstractions\\10.0.10\\microsoft.extensions.diagnostics.abstractions.10.0.10.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.extensions.fileproviders.abstractions\\8.0.0\\microsoft.extensions.fileproviders.abstractions.8.0.0.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.extensions.hosting.abstractions\\8.0.1\\microsoft.extensions.hosting.abstractions.8.0.1.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.extensions.identity.core\\10.0.10\\microsoft.extensions.identity.core.10.0.10.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.extensions.identity.stores\\10.0.10\\microsoft.extensions.identity.stores.10.0.10.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.extensions.logging\\10.0.10\\microsoft.extensions.logging.10.0.10.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\10.0.10\\microsoft.extensions.logging.abstractions.10.0.10.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.extensions.objectpool\\8.0.11\\microsoft.extensions.objectpool.8.0.11.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.extensions.options\\10.0.10\\microsoft.extensions.options.10.0.10.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.extensions.options.configurationextensions\\10.0.10\\microsoft.extensions.options.configurationextensions.10.0.10.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.extensions.primitives\\10.0.10\\microsoft.extensions.primitives.10.0.10.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.extensions.webencoders\\8.0.11\\microsoft.extensions.webencoders.8.0.11.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.net.http.headers\\2.3.0\\microsoft.net.http.headers.2.3.0.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\system.security.cryptography.pkcs\\8.0.1\\system.security.cryptography.pkcs.8.0.1.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\system.security.cryptography.xml\\8.0.2\\system.security.cryptography.xml.8.0.2.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "message": "Package 'System.Security.Cryptography.Xml' 8.0.2 has a known high severity vulnerability, https://github.com/advisories/GHSA-23rf-6693-g89p",
+      "projectPath": "C:\\Users\\isido\\RiderProjects\\SkinInventoryApp\\Service\\Service.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\isido\\RiderProjects\\SkinInventoryApp\\Service\\Service.csproj",
+      "libraryId": "System.Security.Cryptography.Xml",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    },
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "message": "Package 'System.Security.Cryptography.Xml' 8.0.2 has a known high severity vulnerability, https://github.com/advisories/GHSA-37gx-xxp4-5rgx",
+      "projectPath": "C:\\Users\\isido\\RiderProjects\\SkinInventoryApp\\Service\\Service.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\isido\\RiderProjects\\SkinInventoryApp\\Service\\Service.csproj",
+      "libraryId": "System.Security.Cryptography.Xml",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    },
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "message": "Package 'System.Security.Cryptography.Xml' 8.0.2 has a known high severity vulnerability, https://github.com/advisories/GHSA-6588-8gv4-xfgh",
+      "projectPath": "C:\\Users\\isido\\RiderProjects\\SkinInventoryApp\\Service\\Service.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\isido\\RiderProjects\\SkinInventoryApp\\Service\\Service.csproj",
+      "libraryId": "System.Security.Cryptography.Xml",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    },
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "message": "Package 'System.Security.Cryptography.Xml' 8.0.2 has a known high severity vulnerability, https://github.com/advisories/GHSA-8q5v-6pqq-x66h",
+      "projectPath": "C:\\Users\\isido\\RiderProjects\\SkinInventoryApp\\Service\\Service.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\isido\\RiderProjects\\SkinInventoryApp\\Service\\Service.csproj",
+      "libraryId": "System.Security.Cryptography.Xml",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    },
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "message": "Package 'System.Security.Cryptography.Xml' 8.0.2 has a known high severity vulnerability, https://github.com/advisories/GHSA-cvvh-rhrc-wg4q",
+      "projectPath": "C:\\Users\\isido\\RiderProjects\\SkinInventoryApp\\Service\\Service.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\isido\\RiderProjects\\SkinInventoryApp\\Service\\Service.csproj",
+      "libraryId": "System.Security.Cryptography.Xml",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    },
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "message": "Package 'System.Security.Cryptography.Xml' 8.0.2 has a known high severity vulnerability, https://github.com/advisories/GHSA-g8r8-53c2-pm3f",
+      "projectPath": "C:\\Users\\isido\\RiderProjects\\SkinInventoryApp\\Service\\Service.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\isido\\RiderProjects\\SkinInventoryApp\\Service\\Service.csproj",
+      "libraryId": "System.Security.Cryptography.Xml",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    },
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "message": "Package 'System.Security.Cryptography.Xml' 8.0.2 has a known high severity vulnerability, https://github.com/advisories/GHSA-mmjf-rqrv-855v",
+      "projectPath": "C:\\Users\\isido\\RiderProjects\\SkinInventoryApp\\Service\\Service.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\isido\\RiderProjects\\SkinInventoryApp\\Service\\Service.csproj",
+      "libraryId": "System.Security.Cryptography.Xml",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    },
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "message": "Package 'System.Security.Cryptography.Xml' 8.0.2 has a known high severity vulnerability, https://github.com/advisories/GHSA-w3x6-4m5h-cxqf",
+      "projectPath": "C:\\Users\\isido\\RiderProjects\\SkinInventoryApp\\Service\\Service.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\isido\\RiderProjects\\SkinInventoryApp\\Service\\Service.csproj",
+      "libraryId": "System.Security.Cryptography.Xml",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    }
+  ]
+}
