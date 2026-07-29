@@ -65,8 +65,10 @@ public class InventoryItemService : IInventoryItemService
             selector: x => x,
             predicate: x => x.CreatedById == user && x.ProductId == productId);
         if (hasProduct == null) throw new Exception();
+
+        hasProduct.ProductStatus = ProductStatus.Finished;
         
-        return await _inventoryItemRepository.DeleteAsync(hasProduct);
+        return await _inventoryItemRepository.UpdateAsync(hasProduct);
     }
 
     public async Task<InventoryItem> UpdateProductAsync(Guid productId, string? comment, int? rating, DateTime? openedDate, ProductStatus? status,
