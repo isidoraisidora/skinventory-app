@@ -15,6 +15,11 @@ public class CurrentUserService : ICurrentUserService
 
     public Guid GetUserId()
     {
-        return _accessor?.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var value = _accessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(value) || !Guid.TryParse(value, out var userId))
+            throw new UnauthorizedAccessException("No authenticated user found.");
+
+        return userId;
     }
 }

@@ -8,7 +8,7 @@ namespace Service.Implementation;
 public class ProductService : IProductService
 {
     private readonly IRepository<Product> _productRepository;
-    private readonly IRepository<InventoryItem> _hasProductRepository;
+    private readonly IRepository<InventoryItem> _inventoryItemRepository;
     private readonly IRepository<WishlistItem> _wishlistProductRepository;
 
     private readonly ICurrentUserService _currentUserService;
@@ -17,7 +17,7 @@ public class ProductService : IProductService
     {
         _productRepository = productRepository;
         _currentUserService = currentUserService;
-        _hasProductRepository = hasProductRepository;
+        _inventoryItemRepository = hasProductRepository;
         _wishlistProductRepository = wishlistProductRepository;
     }
 
