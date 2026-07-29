@@ -20,17 +20,21 @@ public class WishlistItemService : IWishlistItemService
         var user = _currentUserService.GetUserId();
         return await _wishlistRepository.GetAllAsync(
             selector: x => x,
-            predicate: x => x.UserId == user);
+            predicate: x => x.CreatedById == user);
     }
 
     public async Task<WishlistItem> AddProductToWishlist(Guid productId)
     {
         var user = _currentUserService.GetUserId();
+        var existing = await _wishlistRepository.ExistsAsync(
+            x => x.CreatedById == user && x.ProductId == productId);
+        if (existing)
+            throw new InvalidOperationException("Product already exists in your wishlist.");
         var wishlistProduct = new WishlistItem()
         {
-            UserId = user,
+            CreatedById = user,
             ProductId = productId,
-            AddedAt = DateTime.Now
+            CreatedAt = DateTime.Now
         };
 
         return await _wishlistRepository.InsertAsync(wishlistProduct);
@@ -39,9 +43,15 @@ public class WishlistItemService : IWishlistItemService
     public async Task<WishlistItem> RemoveProductFromWishlist(Guid productId)
     {
         var user = _currentUserService.GetUserId();
+        var existing = await _wishlistRepository.ExistsAsync(
+            x => x.CreatedById == user && x.ProductId == productId);
+        if (!existing)
+            throw new InvalidOperationException("Product doesn't exists in your wishlist.");
+        
         var wishlistProduct = await _wishlistRepository.GetAsync(
             selector: x => x,
-            predicate: x => x.UserId == user && x.ProductId == productId);
+            predicate: x => x.CreatedById == user && x.ProductId == productId);
+        
         if (wishlistProduct == null) throw new Exception();
         
         return await _wishlistRepository.DeleteAsync(wishlistProduct);
