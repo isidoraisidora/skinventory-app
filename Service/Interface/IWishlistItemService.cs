@@ -6,5 +6,6 @@ public interface IWishlistItemService
 {
     Task<List<WishlistItem>> GetAllWishlistProducts();
     Task<WishlistItem> AddProductToWishlist(Guid productId);
-    Task<WishlistItem> RemoveProductFromWishlist(Guid productId);
+    Task<WishlistItem> DiscardProductFromWishlist(Guid productId);
+    Task<InventoryItem> MoveToOwnedAsync(Guid productId, DateTime? expirationDate, DateTime? openedDate, int? paoMonths);
 }
