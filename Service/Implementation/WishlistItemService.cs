@@ -48,6 +48,7 @@ public class WishlistItemService : IWishlistItemService
             throw new InvalidOperationException("Product already exists in your wishlist.");
         var wishlistProduct = new WishlistItem()
         {
+            UserId = user,
             CreatedById = user,
             ProductId = productId,
             CreatedAt = DateTime.UtcNow,

@@ -56,6 +56,7 @@ public class InventoryItemService : IInventoryItemService
 
         var item = new InventoryItem
         {
+            UserId = user,
             CreatedById = user,
             CreatedAt = DateTime.UtcNow,
             ProductId = productId,
