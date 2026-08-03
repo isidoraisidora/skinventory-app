@@ -28,19 +28,36 @@ public class InventoryItemService : IInventoryItemService
 
         return hasProducts;
     }
-
-    public async Task<InventoryItem> AddProductToOwned(Guid productId, string? comment, int? rating, DateTime? expirationDate, DateTime? openedDate, int? paoMonths)
+    
+    private async Task<InventoryItem> GetOwnedItemOrThrow(Guid productId)
     {
-        var user =  _currentUserService.GetUserId();
-        var existing = await _inventoryItemRepository.ExistsAsync(
-            x => x.CreatedById == user && x.ProductId == productId && x.ProductStatus == ProductStatus.Opened);
-        if (existing)
+        var user = _currentUserService.GetUserId();
+        var item = await _inventoryItemRepository.GetAsync(
+            selector: x => x,
+            predicate: x => x.CreatedById == user && x.ProductId == productId);
+
+        if (item == null)
+            throw new InvalidOperationException("Product doesn't exist in your inventory.");
+
+        return item;
+    }
+
+    public async Task<InventoryItem> AddProductToOwned(Guid productId, string? comment, int? rating,
+        DateTime? expirationDate, DateTime? openedDate, int? paoMonths)
+    {
+        var user = _currentUserService.GetUserId();
+
+        var alreadyOwned = await _inventoryItemRepository.ExistsAsync(
+            x => x.CreatedById == user && x.ProductId == productId &&
+                 (x.ProductStatus == ProductStatus.Active || x.ProductStatus == ProductStatus.Opened));
+
+        if (alreadyOwned)
             throw new InvalidOperationException("Product is already in your inventory.");
-        
-        var hasProduct = new InventoryItem()
+
+        var item = new InventoryItem
         {
             CreatedById = user,
-            CreatedAt = DateTime.Now,
+            CreatedAt = DateTime.UtcNow,
             ProductId = productId,
             Comment = comment,
             Rating = rating,
@@ -50,48 +67,55 @@ public class InventoryItemService : IInventoryItemService
             ProductStatus = ProductStatus.Active
         };
 
-        return await _inventoryItemRepository.InsertAsync(hasProduct);
+        return await _inventoryItemRepository.InsertAsync(item);
+    }
+    
+
+    public async Task<InventoryItem> OpenProductAsync(Guid productId)
+    {
+        var product = await GetOwnedItemOrThrow(productId);
+
+        if (product.ProductStatus != ProductStatus.Active)
+            throw new InvalidOperationException("Product needs to be active to get opened.");
+
+        product.ProductStatus = ProductStatus.Opened;
+
+        return await _inventoryItemRepository.UpdateAsync(product);
 
     }
 
-    public async Task<InventoryItem> RemoveProductFromOwned(Guid productId)
+    public async Task<InventoryItem> FinishProductAsync(Guid productId)
     {
-        var user = _currentUserService.GetUserId();
-        var existing = await _inventoryItemRepository.ExistsAsync(
-            x => x.CreatedById == user && x.ProductId == productId);
-        if (!existing)
-            throw new InvalidOperationException("Product doesn't exist in your inventory.");
-        var hasProduct = await _inventoryItemRepository.GetAsync(
-            selector: x => x,
-            predicate: x => x.CreatedById == user && x.ProductId == productId);
-        if (hasProduct == null) throw new Exception();
+        var product = await GetOwnedItemOrThrow(productId);
 
-        hasProduct.ProductStatus = ProductStatus.Finished;
-        
-        return await _inventoryItemRepository.UpdateAsync(hasProduct);
+        if (product.ProductStatus != ProductStatus.Opened)
+            throw new InvalidOperationException("Product needs to be opened to finish it.");
+
+        product.ProductStatus = ProductStatus.Finished;
+
+        return await _inventoryItemRepository.UpdateAsync(product);
     }
 
-    public async Task<InventoryItem> UpdateProductAsync(Guid productId, string? comment, int? rating, DateTime? openedDate, ProductStatus? status,
-        DateTime? expirationDate, int? paoMonths)
+    public async Task<InventoryItem> DiscardProductAsync(Guid productId)
     {
-        var user = _currentUserService.GetUserId();
-        var existing = await _inventoryItemRepository.ExistsAsync(
-            x => x.CreatedById == user && x.ProductId == productId);
-        if (!existing)
-            throw new InvalidOperationException("Product doesn't exist in your inventory.");
-        
-        var hasProduct = await _inventoryItemRepository.GetAsync(
-            selector: x => x,
-            predicate: x => x.CreatedById == user && x.ProductId == productId);
-        if (hasProduct == null) throw new Exception("Product doesn't exist in your inventory.");
+        var product = await GetOwnedItemOrThrow(productId);
 
-        hasProduct.Comment = comment;
-        hasProduct.Rating = rating;
-        hasProduct.OpenedDate = openedDate;
-        hasProduct.ProductStatus = status;
-        hasProduct.ExpirationDate = expirationDate;
-        hasProduct.PaoMonths = paoMonths;
+        if (product.ProductStatus != ProductStatus.Active && product.ProductStatus != ProductStatus.Opened)
+            throw new InvalidOperationException("Product needs to be either active or opened to be discarded.");
 
-        return await _inventoryItemRepository.UpdateAsync(hasProduct);
+        product.ProductStatus = ProductStatus.Discarded;
+
+        return await _inventoryItemRepository.UpdateAsync(product);
+    }
+    
+
+    public async Task<InventoryItem> UpdateProductAsync(Guid productId, string? comment, int? rating)
+    {
+        var item = await GetOwnedItemOrThrow(productId);
+
+        if (comment != null) item.Comment = comment;
+        if (rating != null) item.Rating = rating;
+
+        return await _inventoryItemRepository.UpdateAsync(item);
     }
 }
