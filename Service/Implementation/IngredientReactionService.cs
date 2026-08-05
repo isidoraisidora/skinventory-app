@@ -1,3 +1,4 @@
+using Domain.Dtos;
 using Domain.Enums;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
@@ -29,7 +30,7 @@ public class IngredientReactionService : IIngredientReactionService
         var user = _currentUserService.GetUserId();
         return await _reactionRepository.GetAllAsync(
             selector: x => x,
-            predicate: x => x.CreatedById == user);
+            predicate: x => x.UserId == user);
     }
 
     private async Task<IngredientReaction> GetOwnedReactionOrThrow(Guid id)
@@ -37,7 +38,7 @@ public class IngredientReactionService : IIngredientReactionService
         var user = _currentUserService.GetUserId();
         var reaction = await _reactionRepository.GetAsync(
             selector: x => x,
-            predicate: x => x.Id == id && x.CreatedById == user);
+            predicate: x => x.Id == id && x.UserId == user);
 
         if (reaction == null)
             throw new InvalidOperationException("Reaction log not found.");
@@ -45,22 +46,21 @@ public class IngredientReactionService : IIngredientReactionService
         return reaction;
     }
 
-    public async Task<IngredientReaction> LogReactionAsync(Guid productId, Guid ingredientId, ReactionType type,
-        int severity, string? note)
+    public async Task<IngredientReaction> LogReactionAsync(IngredientReactionDto dto)
     {
-        if (severity is < 1 or > 10)
-            throw new ArgumentOutOfRangeException(nameof(severity), "Severity must be between 1 and 10.");
+        if (dto.severity is < 1 or > 10)
+            throw new ArgumentOutOfRangeException(nameof(dto), "Severity must be between 1 and 10.");
 
         var user = _currentUserService.GetUserId();
 
         var reaction = new IngredientReaction
         {
-            CreatedById = user,
-            ProductId = productId,
-            IngredientId = ingredientId,
-            ReactionType = type,
-            ReactionSeverity = severity,
-            Note = note
+            UserId = user,
+            ProductId = dto.ProductId,
+            IngredientId = dto.IngredientId,
+            ReactionType = dto.Type,
+            ReactionSeverity = dto.Severity,
+            Note = dto.Note
         };
 
         return await _reactionRepository.InsertAsync(reaction);
@@ -92,7 +92,7 @@ public class IngredientReactionService : IIngredientReactionService
 
         var reactedIngredientIds = (await _reactionRepository.GetAllAsync(
                 selector: x => x.IngredientId,
-                predicate: x => x.CreatedById == user && x.ReactionSeverity >= SignificantSeverityThreshold))
+                predicate: x => x.UserId == user && x.ReactionSeverity >= SignificantSeverityThreshold))
             .ToHashSet();
 
         if (reactedIngredientIds.Count == 0)

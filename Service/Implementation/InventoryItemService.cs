@@ -1,3 +1,4 @@
+using Domain.Dtos;
 using Domain.Enums;
 using Domain.Models;
 using Repository.Interface;
@@ -24,7 +25,7 @@ public class InventoryItemService : IInventoryItemService
         var user = _currentUserService.GetUserId();
         var hasProducts = await _inventoryItemRepository.GetAllAsync(
             selector: x => x,
-            predicate: x => x.CreatedById == user);
+            predicate: x => x.UserId == user);
 
         return hasProducts;
     }
@@ -34,7 +35,7 @@ public class InventoryItemService : IInventoryItemService
         var user = _currentUserService.GetUserId();
         var item = await _inventoryItemRepository.GetAsync(
             selector: x => x,
-            predicate: x => x.CreatedById == user && x.ProductId == productId);
+            predicate: x => x.UserId == user && x.ProductId == productId);
 
         if (item == null)
             throw new InvalidOperationException("Product doesn't exist in your inventory.");
@@ -42,13 +43,12 @@ public class InventoryItemService : IInventoryItemService
         return item;
     }
 
-    public async Task<InventoryItem> AddProductToOwned(Guid productId, string? comment, int? rating,
-        DateTime? expirationDate, DateTime? openedDate, int? paoMonths)
+    public async Task<InventoryItem> AddProductToOwned(InventoryItemDto dto)
     {
         var user = _currentUserService.GetUserId();
 
         var alreadyOwned = await _inventoryItemRepository.ExistsAsync(
-            x => x.CreatedById == user && x.ProductId == productId &&
+            x => x.UserId == user && x.ProductId == dto.ProductId &&
                  (x.ProductStatus == ProductStatus.Active || x.ProductStatus == ProductStatus.Opened));
 
         if (alreadyOwned)
@@ -59,12 +59,12 @@ public class InventoryItemService : IInventoryItemService
             UserId = user,
             CreatedById = user,
             CreatedAt = DateTime.UtcNow,
-            ProductId = productId,
-            Comment = comment,
-            Rating = rating,
-            ExpirationDate = expirationDate,
-            OpenedDate = openedDate,
-            PaoMonths = paoMonths,
+            ProductId = dto.ProductId,
+            Comment = dto.Comment,
+            Rating = dto.Rating,
+            ExpirationDate = dto.ExpirationDate,
+            OpenedDate = dto.OpenedDate,
+            PaoMonths = dto.PaoMonths,
             ProductStatus = ProductStatus.Active
         };
 

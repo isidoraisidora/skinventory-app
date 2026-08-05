@@ -1,3 +1,4 @@
+using Domain.Dtos;
 using Domain.Models;
 
 namespace Service.Interface;
@@ -12,5 +13,5 @@ public interface IProductService
     Task<Product> UpdateAsync(Guid id, string? name, string? brand, decimal? price, string? description);
     Task<Product> DeleteByIdAsync(Guid id);
 
-    /*Task<PaginatedResult<Product>> GetPagedAsync(int pageNumber, int pageSize);*/
+    Task<PaginatedResult<Product>> GetPagedAsync(int pageNumber, int pageSize);
 }

@@ -1,3 +1,4 @@
+using Domain.Dtos;
 using Domain.Models;
 using Repository.Interface;
 using Service.Interface;
@@ -81,7 +82,21 @@ public class ProductService : IProductService
     public async Task<Product> DeleteByIdAsync(Guid id)
     {
         var product = await GetByIdNotNullAsync(id);
+
+        var inventoryEntries = await _inventoryItemRepository.GetAllAsync(x => x, x => x.ProductId == id);
+        foreach (var entry in inventoryEntries) await _inventoryItemRepository.DeleteAsync(entry);
+
+        var wishlistEntries = await _wishlistProductRepository.GetAllAsync(x => x, x => x.ProductId == id);
+        foreach (var entry in wishlistEntries) await _wishlistProductRepository.DeleteAsync(entry);
+
         return await _productRepository.DeleteAsync(product);
     }
-    
+
+    public async Task<PaginatedResult<Product>> GetPagedAsync(int pageNumber, int pageSize)
+    {
+        return await _productRepository.GetAllPagedAsync(
+            selector: x => x,
+            pageNumber: pageNumber,
+            pageSize: pageSize);
+    }
 }
