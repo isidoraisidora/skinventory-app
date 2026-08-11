@@ -1106,7 +1106,7 @@
             },
             "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[10.0.7, )"
+              "version": "[10.0.10, )"
             },
             "Microsoft.AspNetCore.Identity.UI": {
               "target": "Package",

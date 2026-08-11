@@ -18,6 +18,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<WishlistItem> WishlistItems { get; set; }
     public DbSet<ProductCategory> ProductCategories { get; set; }
     public DbSet<IngredientReaction> IngredientReactions { get; set; }
+    public DbSet<EtlSyncLog> EtlSyncLogs { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

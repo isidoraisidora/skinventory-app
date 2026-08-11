@@ -48,7 +48,7 @@ public class IngredientReactionService : IIngredientReactionService
 
     public async Task<IngredientReaction> LogReactionAsync(IngredientReactionDto dto)
     {
-        if (dto.severity is < 1 or > 10)
+        if (dto.Severity is < 1 or > 10)
             throw new ArgumentOutOfRangeException(nameof(dto), "Severity must be between 1 and 10.");
 
         var user = _currentUserService.GetUserId();

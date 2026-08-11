@@ -1,6 +1,7 @@
 using Domain.Dtos;
 using Domain.Enums;
 using Domain.Models;
+using Domain.Services;
 using Repository.Interface;
 using Service.Interface;
 

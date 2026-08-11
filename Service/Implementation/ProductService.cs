@@ -1,5 +1,6 @@
 using Domain.Dtos;
 using Domain.Models;
+using Microsoft.EntityFrameworkCore;
 using Repository.Interface;
 using Service.Interface;
 
@@ -37,34 +38,40 @@ public class ProductService : IProductService
     {
         return await _productRepository.GetAsync(
             selector: x => x,
-            predicate: x => x.Id == id);
+            predicate: x => x.Id == id,
+            include: q => q.Include(p => p.ProductCategories)
+                .ThenInclude(pc => pc.Category)
+                .Include(p => p.Ingredients));
     }
 
     public async Task<List<Product>> GetAllAsync(string? name, string? brand)
     {
-
         var results = await _productRepository.GetAllAsync(
             selector: x => x,
             predicate: x => (name == null || x.Name.Contains(name)) &&
-                            (brand == null || x.Brand.Equals(brand)));
-        
+                            (brand == null || x.Brand.Equals(brand)),
+            include: q => q.Include(p => p.ProductCategories)
+                .ThenInclude(pc => pc.Category)
+                .Include(p => p.Ingredients));
+
         return results;
     }
 
-    public async Task<Product> CreateAsync(string name, string brand, decimal price, string description)
+    public async Task<Product> CreateAsync(string name, string brand, decimal price, string description, string imageUrl)
     {
         var product = new Product()
         {
             Name = name,
             Brand = brand,
             Price = price,
-            Description = description
+            Description = description,
+            ImageUrl = imageUrl
         };
 
         return await _productRepository.InsertAsync(product);
     }
 
-    public async Task<Product> UpdateAsync(Guid id, string? name, string? brand, decimal? price, string? description)
+    public async Task<Product> UpdateAsync(Guid id, string? name, string? brand, decimal? price, string? description, string? imageUrl)
     {
         var product = await GetByIdNotNullAsync(id);
 
@@ -72,6 +79,7 @@ public class ProductService : IProductService
         if (brand != null) product.Brand = brand;
         if (price != null) product.Price = price;
         if (description != null) product.Description = description;
+        if (imageUrl != null) product.ImageUrl = imageUrl;
 
         return await _productRepository.UpdateAsync(product);
 

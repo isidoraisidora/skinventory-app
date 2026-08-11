@@ -9,8 +9,8 @@ public interface IProductService
     Task<Product?> GetByIdAsync(Guid id);
     Task<List<Product>> GetAllAsync(string? name, string? brand);
 
-    Task<Product> CreateAsync(string name, string brand, decimal price, string description);
-    Task<Product> UpdateAsync(Guid id, string? name, string? brand, decimal? price, string? description);
+    Task<Product> CreateAsync(string name, string brand, decimal price, string description, string imageUrl);
+    Task<Product> UpdateAsync(Guid id, string? name, string? brand, decimal? price, string? description, string? imageUrl);
     Task<Product> DeleteByIdAsync(Guid id);
 
     Task<PaginatedResult<Product>> GetPagedAsync(int pageNumber, int pageSize);

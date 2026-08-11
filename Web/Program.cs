@@ -1,10 +1,42 @@
+using Domain.Config;
+using Domain.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Web.Data;
+using Repository.Implementation;
+using Repository.Interface;
+using Service.Implementation;
+using Service.Interface;
+using Repository;
+using Service.BackgroundJobs;
+using Web.Mappers;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+builder.Services.AddScoped<IIngredientReactionService, IngredientReactionService>();
+builder.Services.AddScoped<IIngredientService, IngredientService>();
+builder.Services.AddScoped<IInventoryItemService, InventoryItemService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IWishlistItemService, WishlistItemService>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IEtlService, EtlSyncService>();
+builder.Services.AddScoped<ProductMapper>();
+builder.Services.AddSingleton<IExpirationCalculator, ExpirationCalculator>();
+builder.Services.AddHostedService<BackgroundEtlSyncJob>();
+
+
+
+builder.Services.Configure<ProductEtlOptions>(builder.Configuration.GetSection("ProductEtl"));
+builder.Services.AddHttpClient<IExternalProductApi, ExternalProductApi>(client =>
+{
+    client.BaseAddress = new Uri("https://world.openbeautyfacts.org/");
+    client.DefaultRequestHeaders.Add("User-Agent", "SkincareInventory-StudentProject/1.0");
+});
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
                        throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

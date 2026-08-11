@@ -1,12 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "uC5qGTe47kA=",
-  "success": false,
+  "dgSpecHash": "Dnf2vRebI4o=",
+  "success": true,
   "projectFilePath": "C:\\Users\\isido\\RiderProjects\\SkinInventoryApp\\Web\\Web.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\isido\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\isido\\.nuget\\packages\\microsoft.aspnetcore.diagnostics.entityframeworkcore\\10.0.7\\microsoft.aspnetcore.diagnostics.entityframeworkcore.10.0.7.nupkg.sha512",
-    "C:\\Users\\isido\\.nuget\\packages\\microsoft.aspnetcore.identity.entityframeworkcore\\10.0.7\\microsoft.aspnetcore.identity.entityframeworkcore.10.0.7.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.aspnetcore.identity.entityframeworkcore\\10.0.10\\microsoft.aspnetcore.identity.entityframeworkcore.10.0.10.nupkg.sha512",
     "C:\\Users\\isido\\.nuget\\packages\\microsoft.aspnetcore.identity.ui\\10.0.7\\microsoft.aspnetcore.identity.ui.10.0.7.nupkg.sha512",
     "C:\\Users\\isido\\.nuget\\packages\\microsoft.build.framework\\18.0.2\\microsoft.build.framework.18.0.2.nupkg.sha512",
     "C:\\Users\\isido\\.nuget\\packages\\microsoft.codeanalysis.analyzers\\3.11.0\\microsoft.codeanalysis.analyzers.3.11.0.nupkg.sha512",
@@ -16,11 +16,11 @@
     "C:\\Users\\isido\\.nuget\\packages\\microsoft.codeanalysis.workspaces.common\\5.0.0\\microsoft.codeanalysis.workspaces.common.5.0.0.nupkg.sha512",
     "C:\\Users\\isido\\.nuget\\packages\\microsoft.codeanalysis.workspaces.msbuild\\5.0.0\\microsoft.codeanalysis.workspaces.msbuild.5.0.0.nupkg.sha512",
     "C:\\Users\\isido\\.nuget\\packages\\microsoft.data.sqlite.core\\10.0.7\\microsoft.data.sqlite.core.10.0.7.nupkg.sha512",
-    "C:\\Users\\isido\\.nuget\\packages\\microsoft.entityframeworkcore\\10.0.7\\microsoft.entityframeworkcore.10.0.7.nupkg.sha512",
-    "C:\\Users\\isido\\.nuget\\packages\\microsoft.entityframeworkcore.abstractions\\10.0.7\\microsoft.entityframeworkcore.abstractions.10.0.7.nupkg.sha512",
-    "C:\\Users\\isido\\.nuget\\packages\\microsoft.entityframeworkcore.analyzers\\10.0.7\\microsoft.entityframeworkcore.analyzers.10.0.7.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.entityframeworkcore\\10.0.10\\microsoft.entityframeworkcore.10.0.10.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.entityframeworkcore.abstractions\\10.0.10\\microsoft.entityframeworkcore.abstractions.10.0.10.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.entityframeworkcore.analyzers\\10.0.10\\microsoft.entityframeworkcore.analyzers.10.0.10.nupkg.sha512",
     "C:\\Users\\isido\\.nuget\\packages\\microsoft.entityframeworkcore.design\\10.0.7\\microsoft.entityframeworkcore.design.10.0.7.nupkg.sha512",
-    "C:\\Users\\isido\\.nuget\\packages\\microsoft.entityframeworkcore.relational\\10.0.7\\microsoft.entityframeworkcore.relational.10.0.7.nupkg.sha512",
+    "C:\\Users\\isido\\.nuget\\packages\\microsoft.entityframeworkcore.relational\\10.0.10\\microsoft.entityframeworkcore.relational.10.0.10.nupkg.sha512",
     "C:\\Users\\isido\\.nuget\\packages\\microsoft.entityframeworkcore.sqlite\\10.0.7\\microsoft.entityframeworkcore.sqlite.10.0.7.nupkg.sha512",
     "C:\\Users\\isido\\.nuget\\packages\\microsoft.entityframeworkcore.sqlite.core\\10.0.7\\microsoft.entityframeworkcore.sqlite.core.10.0.7.nupkg.sha512",
     "C:\\Users\\isido\\.nuget\\packages\\microsoft.entityframeworkcore.tools\\10.0.7\\microsoft.entityframeworkcore.tools.10.0.7.nupkg.sha512",
@@ -50,17 +50,6 @@
       "warningLevel": 1,
       "filePath": "C:\\Users\\isido\\RiderProjects\\SkinInventoryApp\\Web\\Web.csproj",
       "libraryId": "SQLitePCLRaw.lib.e_sqlite3",
-      "targetGraphs": [
-        "net10.0"
-      ]
-    },
-    {
-      "code": "NU1605",
-      "level": "Error",
-      "message": "Warning As Error: Detected package downgrade: Microsoft.AspNetCore.Identity.EntityFrameworkCore from 10.0.10 to 10.0.7. Reference the package directly from the project to select a different version. \r\n Web -> Repository -> Microsoft.AspNetCore.Identity.EntityFrameworkCore (>= 10.0.10) \r\n Web -> Microsoft.AspNetCore.Identity.EntityFrameworkCore (>= 10.0.7)",
-      "projectPath": "C:\\Users\\isido\\RiderProjects\\SkinInventoryApp\\Web\\Web.csproj",
-      "filePath": "C:\\Users\\isido\\RiderProjects\\SkinInventoryApp\\Web\\Web.csproj",
-      "libraryId": "Microsoft.AspNetCore.Identity.EntityFrameworkCore",
       "targetGraphs": [
         "net10.0"
       ]
