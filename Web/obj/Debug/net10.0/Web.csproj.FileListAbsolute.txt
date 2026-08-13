@@ -286,3 +286,12 @@ C:\Users\isido\RiderProjects\SkinInventoryApp\Web\obj\Debug\net10.0\refint\Web.d
 C:\Users\isido\RiderProjects\SkinInventoryApp\Web\obj\Debug\net10.0\Web.pdb
 C:\Users\isido\RiderProjects\SkinInventoryApp\Web\obj\Debug\net10.0\Web.genruntimeconfig.cache
 C:\Users\isido\RiderProjects\SkinInventoryApp\Web\obj\Debug\net10.0\ref\Web.dll
+C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\Microsoft.Bcl.Cryptography.dll
+C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\Microsoft.IdentityModel.Logging.dll
+C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\Microsoft.IdentityModel.Protocols.dll
+C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\Microsoft.IdentityModel.Tokens.dll
+C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\System.IdentityModel.Tokens.Jwt.dll

@@ -1,3 +1,4 @@
+using System.Text;
 using Domain.Config;
 using Domain.Services;
 using Microsoft.AspNetCore.Identity;
@@ -9,6 +10,11 @@ using Service.Interface;
 using Repository;
 using Service.BackgroundJobs;
 using Web.Mappers;
+using System.IdentityModel.Tokens.Jwt;  
+using System.Security.Claims;             // Claim, ClaimTypes
+using System.Text;                        // Encoding
+using Microsoft.IdentityModel.Tokens;  
+using Microsoft.AspNetCore.Authentication.JwtBearer;// SymmetricSecurityKey, SigningCredentials, SecurityAlgorithms
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,8 +31,31 @@ builder.Services.AddScoped<IWishlistItemService, WishlistItemService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IEtlService, EtlSyncService>();
 builder.Services.AddScoped<ProductMapper>();
+builder.Services.AddScoped<InventoryItemMapper>();
 builder.Services.AddSingleton<IExpirationCalculator, ExpirationCalculator>();
 builder.Services.AddHostedService<BackgroundEtlSyncJob>();
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidAudience = jwtSettings["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtSettings["Key"]!))
+        };
+    });
+
+builder.Services.AddAuthorization();
 
 
 
