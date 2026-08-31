@@ -47,10 +47,11 @@ public class WishlistItemService : IWishlistItemService
     {
         var user = _currentUserService.GetUserId();
         var existing = await _wishlistRepository.ExistsAsync(
-            x => x.UserId == user && x.ProductId == productId && x.WishlistStatus==WishlistStatus.Active);
+            x => x.UserId == user && x.ProductId == productId && x.WishlistStatus == WishlistStatus.Active);
         if (existing)
             throw new InvalidOperationException("Product already exists in your wishlist.");
-        var wishlistProduct = new WishlistItem()
+
+        var wishlistProduct = new WishlistItem
         {
             UserId = user,
             CreatedById = user,
@@ -59,7 +60,9 @@ public class WishlistItemService : IWishlistItemService
             WishlistStatus = WishlistStatus.Active
         };
 
-        return await _wishlistRepository.InsertAsync(wishlistProduct);
+        await _wishlistRepository.InsertAsync(wishlistProduct);
+
+        return await GetWishlistItemOrThrow(productId);
     }
 
     public async Task<WishlistItem> DiscardProductFromWishlist(Guid productId)

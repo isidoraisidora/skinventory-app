@@ -30,6 +30,7 @@ builder.Services.AddScoped<IWishlistItemService, WishlistItemService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IEtlService, EtlSyncService>();
 builder.Services.AddScoped<ProductMapper>();
+builder.Services.AddScoped<WishlistItemMapper>();
 builder.Services.AddScoped<InventoryItemMapper>();
 builder.Services.AddSingleton<IExpirationCalculator, ExpirationCalculator>();
 builder.Services.AddHostedService<BackgroundEtlSyncJob>();
