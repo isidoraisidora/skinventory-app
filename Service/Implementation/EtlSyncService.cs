@@ -8,7 +8,7 @@ namespace Service.Implementation;
 
 public class EtlSyncService : IEtlService
 {
-   private const string JobName = "ProductsSync";
+    private const string JobName = "ProductsSync";
 
     private readonly IRepository<EtlSyncLog> _etlSyncLogRepository;
     private readonly IRepository<Product> _productRepository;
@@ -29,49 +29,53 @@ public class EtlSyncService : IEtlService
 
     public async Task SyncAllAsync()
     {
-        var log = new EtlSyncLog
-        {
-            JobName = JobName,
-            StartedAt = DateTime.UtcNow
-        };
-
+        var log = new EtlSyncLog { JobName = JobName, StartedAt = DateTime.UtcNow };
         var imported = 0;
         var updated = 0;
         var skipped = 0;
+        var pagesFailed = 0;
 
         try
         {
-            for (var page = 1; page <= _options.MaxPages; page++)
+            foreach (var category in _options.CategoryTags)
             {
-                // EXTRACT
-                var products = await _externalProductApi.SearchProductsAsync(
-                    _options.CategoryTag, page, _options.PageSize);
-
-                if (products.Count == 0)
-                    break; // no more results, stop paging early
-
-                foreach (var product in products)
+                for (var page = 1; page <= _options.MaxPages; page++)
                 {
-                    // TRANSFORM already happened inside SearchProductsAsync (via the mapper)
+                    List<Product> products;
 
-                    // LOAD — upsert by barcode
-                    var existing = await _productRepository.GetAsync(
-                        selector: x => x,
-                        predicate: x => x.Barcode == product.Barcode);
+                    try
+                    {
+                        products = await _externalProductApi.SearchProductsAsync(category, page, _options.PageSize);
+                    }
+                    catch (Exception)
+                    {
+                        pagesFailed++;
+                        continue; // skip this page, try the next one instead of aborting the whole run
+                    }
 
-                    if (existing != null)
+                    if (products.Count == 0)
+                        break; // no more results for this category, move to the next one
+
+                    foreach (var product in products)
                     {
-                        existing.Name = product.Name;
-                        existing.Brand = product.Brand;
-                        existing.Description = product.Description;
-                        await _productRepository.UpdateAsync(existing);
-                        updated++;
+                        var existing = await _productRepository.GetAsync(x => x, x => x.Barcode == product.Barcode);
+
+                        if (existing != null)
+                        {
+                            existing.Name = product.Name;
+                            existing.Brand = product.Brand;
+                            existing.Description = product.Description;
+                            await _productRepository.UpdateAsync(existing);
+                            updated++;
+                        }
+                        else
+                        {
+                            await _productRepository.InsertAsync(product);
+                            imported++;
+                        }
                     }
-                    else
-                    {
-                        await _productRepository.InsertAsync(product);
-                        imported++;
-                    }
+
+                    await Task.Delay(TimeSpan.FromSeconds(7));
                 }
             }
 

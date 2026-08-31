@@ -25,7 +25,7 @@ public class BackgroundEtlSyncJob : BackgroundService
             }
             catch (Exception)
             {
-                throw new InvalidOperationException("Unsuccessful sync.");
+                
             }
 
             await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
