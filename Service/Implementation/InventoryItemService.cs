@@ -73,6 +73,9 @@ public class InventoryItemService : IInventoryItemService
             ProductStatus = ProductStatus.Active
         };
 
+        if (item.OpenedDate != null)
+            item.ProductStatus = ProductStatus.Opened;
+
         await _inventoryItemRepository.InsertAsync(item);
 
         return await GetOwnedItemOrThrow(dto.ProductId); 
