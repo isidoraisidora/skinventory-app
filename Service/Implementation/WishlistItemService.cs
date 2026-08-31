@@ -1,6 +1,7 @@
 using Domain.Dtos;
 using Domain.Enums;
 using Domain.Models;
+using Microsoft.EntityFrameworkCore;
 using Repository.Interface;
 using Service.Interface;
 
@@ -24,7 +25,8 @@ public class WishlistItemService : IWishlistItemService
         var user = _currentUserService.GetUserId();
         return await _wishlistRepository.GetAllAsync(
             selector: x => x,
-            predicate: x => x.UserId == user);
+            predicate: x => x.UserId == user,
+            include: q => q.Include(x => x.Product));
     }
     
     private async Task<WishlistItem> GetWishlistItemOrThrow(Guid productId)
@@ -32,7 +34,8 @@ public class WishlistItemService : IWishlistItemService
         var user = _currentUserService.GetUserId();
         var item = await _wishlistRepository.GetAsync(
             selector: x => x,
-            predicate: x => x.UserId == user && x.ProductId == productId && x.WishlistStatus == WishlistStatus.Active);
+            predicate: x => x.UserId == user && x.ProductId == productId && x.WishlistStatus == WishlistStatus.Active,
+            include: q => q.Include(x => x.Product));
 
         if (item == null)
             throw new InvalidOperationException("Product doesn't exist in your wishlist.");

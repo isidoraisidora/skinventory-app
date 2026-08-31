@@ -2,6 +2,7 @@ using Domain.Dtos;
 using Domain.Enums;
 using Domain.Models;
 using Domain.Services;
+using Microsoft.EntityFrameworkCore;
 using Repository.Interface;
 using Service.Interface;
 
@@ -26,7 +27,8 @@ public class InventoryItemService : IInventoryItemService
         var user = _currentUserService.GetUserId();
         var hasProducts = await _inventoryItemRepository.GetAllAsync(
             selector: x => x,
-            predicate: x => x.UserId == user);
+            predicate: x => x.UserId == user,
+            include: q => q.Include(x => x.Product));
 
         return hasProducts;
     }
@@ -36,7 +38,9 @@ public class InventoryItemService : IInventoryItemService
         var user = _currentUserService.GetUserId();
         var item = await _inventoryItemRepository.GetAsync(
             selector: x => x,
-            predicate: x => x.UserId == user && x.ProductId == productId);
+            predicate: x => x.UserId == user && x.ProductId == productId,
+            include: q => q.Include(x => x.Product)
+            );
 
         if (item == null)
             throw new InvalidOperationException("Product doesn't exist in your inventory.");
@@ -69,7 +73,9 @@ public class InventoryItemService : IInventoryItemService
             ProductStatus = ProductStatus.Active
         };
 
-        return await _inventoryItemRepository.InsertAsync(item);
+        await _inventoryItemRepository.InsertAsync(item);
+
+        return await GetOwnedItemOrThrow(dto.ProductId); 
     }
     
 

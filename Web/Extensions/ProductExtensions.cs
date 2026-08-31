@@ -14,7 +14,6 @@ public static class ProductExtensions
             product.Brand,
             product.Price,
             product.Description,
-            product.Barcode,
             product.ProductCategories?.Select(pc => pc.Category.Name).ToList() ?? new List<string>()
         );
     }

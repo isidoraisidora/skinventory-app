@@ -6,6 +6,5 @@ public record ProductResponse(
     string Brand,
     decimal? Price,
     string? Description,
-    string? Barcode,
     List<string> Categories
     );
