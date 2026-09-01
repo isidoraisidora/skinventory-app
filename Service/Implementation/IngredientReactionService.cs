@@ -30,7 +30,8 @@ public class IngredientReactionService : IIngredientReactionService
         var user = _currentUserService.GetUserId();
         return await _reactionRepository.GetAllAsync(
             selector: x => x,
-            predicate: x => x.UserId == user);
+            predicate: x => x.UserId == user,
+            include: q => q.Include(x => x.Ingredient));
     }
 
     private async Task<IngredientReaction> GetOwnedReactionOrThrow(Guid id)
@@ -38,7 +39,8 @@ public class IngredientReactionService : IIngredientReactionService
         var user = _currentUserService.GetUserId();
         var reaction = await _reactionRepository.GetAsync(
             selector: x => x,
-            predicate: x => x.Id == id && x.UserId == user);
+            predicate: x => x.Id == id && x.UserId == user,
+            include: q => q.Include(x => x.Ingredient));
 
         if (reaction == null)
             throw new InvalidOperationException("Reaction log not found.");

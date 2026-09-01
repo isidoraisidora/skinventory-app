@@ -1,5 +1,6 @@
 using Domain.Config;
 using Domain.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Repository.Interface;
 using Service.Interface;
@@ -14,6 +15,8 @@ public class EtlSyncService : IEtlService
     private readonly IRepository<Product> _productRepository;
     private readonly IRepository<Category> _categoryRepository;
     private readonly IRepository<ProductCategory> _productCategoryRepository;
+    private readonly IRepository<Ingredient> _ingredientRepository;
+
     private readonly IExternalProductApi _externalProductApi;
     private readonly ProductEtlOptions _options;
 
@@ -21,17 +24,18 @@ public class EtlSyncService : IEtlService
         IRepository<EtlSyncLog> etlSyncLogRepository,
         IRepository<Product> productRepository,
         IExternalProductApi externalProductApi,
-        IOptions<ProductEtlOptions> options, IRepository<Category> categoryRepository, IRepository<ProductCategory> productCategoryRepository)
+        IOptions<ProductEtlOptions> options, IRepository<Category> categoryRepository, IRepository<ProductCategory> productCategoryRepository, IRepository<Ingredient> ingredientRepository)
     {
         _etlSyncLogRepository = etlSyncLogRepository;
         _productRepository = productRepository;
         _externalProductApi = externalProductApi;
         _categoryRepository = categoryRepository;
         _productCategoryRepository = productCategoryRepository;
+        _ingredientRepository = ingredientRepository;
         _options = options.Value;
     }
     
-    private async Task EnsureCategoryTagAsync(Guid productId, string categoryTag)
+    public async Task EnsureCategoryTagAsync(Guid productId, string categoryTag)
     {
         var displayName = CategoryTagMapper.ToDisplayName(categoryTag);
 
@@ -52,6 +56,37 @@ public class EtlSyncService : IEtlService
                 CategoryId = category.Id
             });
         }
+    }
+    
+    private async Task LinkIngredientsAsync(Guid productId, List<string> ingredientNames)
+    {
+        if (ingredientNames.Count == 0)
+            return;
+
+        var product = await _productRepository.GetAsync(
+            selector: x => x,
+            predicate: x => x.Id == productId,
+            include: q => q.Include(p => p.Ingredients));
+
+        if (product == null)
+            return;
+
+        foreach (var name in ingredientNames)
+        {
+            var ingredient = await _ingredientRepository.GetAsync(x => x, x => x.Name == name);
+            if (ingredient == null)
+            {
+                ingredient = await _ingredientRepository.InsertAsync(new Ingredient { Name = name, InciName = name });
+            }
+
+            if (product.Ingredients.All(i => i.Id != ingredient.Id))
+            {
+                product.Ingredients.Add(ingredient);
+            }
+        }
+
+        product.Description = null; 
+        await _productRepository.UpdateAsync(product);
     }
 
     public async Task SyncAllAsync()
@@ -93,7 +128,7 @@ public class EtlSyncService : IEtlService
                         {
                             existing.Name = product.Name;
                             existing.Brand = product.Brand;
-                            existing.Description = product.Description;
+                            existing.Description = product.Description; 
                             await _productRepository.UpdateAsync(existing);
                             savedProduct = existing;
                             updated++;
@@ -105,6 +140,9 @@ public class EtlSyncService : IEtlService
                         }
 
                         await EnsureCategoryTagAsync(savedProduct.Id, category);
+
+                        var ingredientNames = ExternalProductTransformer.ParseIngredientNames(product.Description);
+                        await LinkIngredientsAsync(savedProduct.Id, ingredientNames);
                     }
 
                     await Task.Delay(TimeSpan.FromSeconds(7));
