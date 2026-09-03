@@ -36,6 +36,10 @@ builder.Services.AddScoped<CategoryMapper>();
 builder.Services.AddScoped<IngredientReactionMapper>();
 builder.Services.AddSingleton<IExpirationCalculator, ExpirationCalculator>();
 builder.Services.AddHostedService<BackgroundEtlSyncJob>();
+builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email"));
+builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
+builder.Services.AddScoped<IExpirationCheckService, ExpirationCheckService>();
+builder.Services.AddHostedService<BackgroundExpirationCheckJob>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 

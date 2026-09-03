@@ -173,6 +173,9 @@ namespace Repository.Migrations
                     b.Property<int?>("Rating")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("ReminderSent")
+                        .HasColumnType("INTEGER");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("TEXT");
 

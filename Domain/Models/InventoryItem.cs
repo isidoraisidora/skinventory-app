@@ -16,4 +16,6 @@ public class InventoryItem : BaseAuditableEntity
     
     public DateTime? OpenedDate { get; set; }
     public int? PaoMonths { get; set; }
+    
+    public bool ReminderSent { get; set; }
 }

@@ -295,3 +295,6 @@ C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\Microsoft.Id
 C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
 C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\Microsoft.IdentityModel.Tokens.dll
 C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\BouncyCastle.Cryptography.dll
+C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\MailKit.dll
+C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\MimeKit.dll
