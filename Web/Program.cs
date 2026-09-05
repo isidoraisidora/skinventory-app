@@ -42,9 +42,9 @@ builder.Services.AddHostedService<BackgroundExpirationCheckJob>();
 builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email"));
 builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 builder.Services.AddScoped<IExpirationCheckService, ExpirationCheckService>();
-
-
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddSingleton<IEmailQueue, EmailQueue>();
+builder.Services.AddHostedService<EmailQueueConsumer>();
 
 builder.Services.AddQuartz(q =>   
 {

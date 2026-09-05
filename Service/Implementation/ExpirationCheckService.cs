@@ -11,18 +11,18 @@ public class ExpirationCheckService : IExpirationCheckService
 {
     private readonly IRepository<InventoryItem> _inventoryItemRepository;
     private readonly IExpirationCalculator _expirationCalculator;
-    private readonly IEmailSender _emailSender;
+    private readonly IEmailQueue _queue;
 
     private const int ReminderWindowDays = 7;
 
     public ExpirationCheckService(
         IRepository<InventoryItem> inventoryItemRepository,
         IExpirationCalculator expirationCalculator,
-        IEmailSender emailSender)
+        IEmailQueue queue)
     {
         _inventoryItemRepository = inventoryItemRepository;
         _expirationCalculator = expirationCalculator;
-        _emailSender = emailSender;
+        _queue = queue;
     }
 
     public async Task RunAsync()
@@ -53,14 +53,11 @@ public class ExpirationCheckService : IExpirationCheckService
             {
                 var daysLeft = (effectiveExpiration.Value - now).Days;
 
-                await _emailSender.SendAsync(
+                await _queue.EnqueueAsync(new EmailMessage(
                     item.User.Email,
                     "Your product is expiring soon",
-                    $"Hi {item.User.FirstName},\n\n" +
-                    $"Your product \"{item.Product.Name}\" is set to expire in {daysLeft} day(s), on {effectiveExpiration.Value:yyyy-MM-dd}.\n\n" +
-                    $"Consider using it up soon or replacing it.\n\n" +
-                    $"— Skincare Inventory"
-                );
+                    $"Hi {item.User.FirstName}, your product \"{item.Product.Name}\" expires in {daysLeft} day(s)."
+                ));
 
                 item.ReminderSent = true;
                 await _inventoryItemRepository.UpdateAsync(item);
