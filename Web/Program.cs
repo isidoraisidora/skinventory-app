@@ -37,11 +37,12 @@ builder.Services.AddScoped<IngredientReactionMapper>();
 builder.Services.AddSingleton<IExpirationCalculator, ExpirationCalculator>();
 /*
 builder.Services.AddHostedService<BackgroundEtlSyncJob>();
+builder.Services.AddHostedService<BackgroundExpirationCheckJob>();
 */
 builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email"));
 builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 builder.Services.AddScoped<IExpirationCheckService, ExpirationCheckService>();
-builder.Services.AddHostedService<BackgroundExpirationCheckJob>();
+
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 
@@ -56,6 +57,16 @@ builder.Services.AddQuartz(q =>
         .WithSimpleSchedule(x => x
             .WithIntervalInHours(24)
             .RepeatForever()));
+});
+
+builder.Services.AddQuartz(q =>   
+{
+    var jobKey = new JobKey("ExpirationCheckJob");
+    q.AddJob<QuartzExpirationCheck>(opts => opts.WithIdentity(jobKey));
+    q.AddTrigger(opts => opts
+        .ForJob(jobKey)
+        .WithIdentity("ExpirationCheck-trigger")
+        .WithCronSchedule("0 0 3 ? * MON"));
 });
 
 builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
