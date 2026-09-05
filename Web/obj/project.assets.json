@@ -798,6 +798,51 @@
           }
         }
       },
+      "Quartz/3.20.1": {
+        "type": "package",
+        "compile": {
+          "lib/net10.0/Quartz.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net10.0/Quartz.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "Quartz.Extensions.DependencyInjection/3.20.1": {
+        "type": "package",
+        "dependencies": {
+          "Quartz": "3.20.1"
+        },
+        "compile": {
+          "lib/net10.0/Quartz.Extensions.DependencyInjection.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net10.0/Quartz.Extensions.DependencyInjection.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "Quartz.Extensions.Hosting/3.20.1": {
+        "type": "package",
+        "dependencies": {
+          "Quartz.Extensions.DependencyInjection": "3.20.1"
+        },
+        "compile": {
+          "lib/net10.0/Quartz.Extensions.Hosting.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net10.0/Quartz.Extensions.Hosting.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "SQLitePCLRaw.bundle_e_sqlite3/2.1.11": {
         "type": "package",
         "dependencies": {
@@ -1133,6 +1178,9 @@
         "dependencies": {
           "Domain": "1.0.0",
           "MailKit": "4.17.0",
+          "Quartz": "3.20.1",
+          "Quartz.Extensions.DependencyInjection": "3.20.1",
+          "Quartz.Extensions.Hosting": "3.20.1",
           "Repository": "1.0.0"
         },
         "compile": {
@@ -2971,6 +3019,73 @@
         "packageIcon.png"
       ]
     },
+    "Quartz/3.20.1": {
+      "sha512": "2+wm8bjKohf7qx7+nQSr/dZo6v8xvE1v9FF6vcSpo8oMBZs80PhQnv+PNKsZWY07Gq2cBn8At0ijPc/NuMOKTQ==",
+      "type": "package",
+      "path": "quartz/3.20.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "lib/net10.0/Quartz.dll",
+        "lib/net10.0/Quartz.xml",
+        "lib/net462/Quartz.dll",
+        "lib/net462/Quartz.xml",
+        "lib/net472/Quartz.dll",
+        "lib/net472/Quartz.xml",
+        "lib/net8.0/Quartz.dll",
+        "lib/net8.0/Quartz.xml",
+        "lib/net9.0/Quartz.dll",
+        "lib/net9.0/Quartz.xml",
+        "lib/netstandard2.0/Quartz.dll",
+        "lib/netstandard2.0/Quartz.xml",
+        "quartz-logo-small.png",
+        "quartz.3.20.1.nupkg.sha512",
+        "quartz.nuspec"
+      ]
+    },
+    "Quartz.Extensions.DependencyInjection/3.20.1": {
+      "sha512": "aANtGX43YULfAXGGxQQJb0M4/lBo9NWHrCvfONmMPwvfxZENQa2tlSv4mqF9NcnfkiLW7Uo7pvDLHAdPwjrP1A==",
+      "type": "package",
+      "path": "quartz.extensions.dependencyinjection/3.20.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "lib/net10.0/Quartz.Extensions.DependencyInjection.dll",
+        "lib/net10.0/Quartz.Extensions.DependencyInjection.xml",
+        "lib/net8.0/Quartz.Extensions.DependencyInjection.dll",
+        "lib/net8.0/Quartz.Extensions.DependencyInjection.xml",
+        "lib/net9.0/Quartz.Extensions.DependencyInjection.dll",
+        "lib/net9.0/Quartz.Extensions.DependencyInjection.xml",
+        "lib/netstandard2.0/Quartz.Extensions.DependencyInjection.dll",
+        "lib/netstandard2.0/Quartz.Extensions.DependencyInjection.xml",
+        "quartz-logo-small.png",
+        "quartz.extensions.dependencyinjection.3.20.1.nupkg.sha512",
+        "quartz.extensions.dependencyinjection.nuspec"
+      ]
+    },
+    "Quartz.Extensions.Hosting/3.20.1": {
+      "sha512": "vlH+Uk7SGKx5C+EDZeqo8f9dEooYLxGFGJd9VhIcaftdW/8k0+VZGK0PYlHQT4SMEEer6qmteKHni1pZ4C0BXg==",
+      "type": "package",
+      "path": "quartz.extensions.hosting/3.20.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "lib/net10.0/Quartz.Extensions.Hosting.dll",
+        "lib/net10.0/Quartz.Extensions.Hosting.xml",
+        "lib/net8.0/Quartz.Extensions.Hosting.dll",
+        "lib/net8.0/Quartz.Extensions.Hosting.xml",
+        "lib/net9.0/Quartz.Extensions.Hosting.dll",
+        "lib/net9.0/Quartz.Extensions.Hosting.xml",
+        "lib/netstandard2.0/Quartz.Extensions.Hosting.dll",
+        "lib/netstandard2.0/Quartz.Extensions.Hosting.xml",
+        "quartz-logo-small.png",
+        "quartz.extensions.hosting.3.20.1.nupkg.sha512",
+        "quartz.extensions.hosting.nuspec"
+      ]
+    },
     "SQLitePCLRaw.bundle_e_sqlite3/2.1.11": {
       "sha512": "DC4nA7yWnf4UZdgJDF+9Mus4/cb0Y3Sfgi3gDnAoKNAIBwzkskNAbNbyu+u4atT0ruVlZNJfwZmwiEwE5oz9LQ==",
       "type": "package",
@@ -3339,6 +3454,9 @@
       "Microsoft.EntityFrameworkCore.Design >= 10.0.7",
       "Microsoft.EntityFrameworkCore.Sqlite >= 10.0.7",
       "Microsoft.EntityFrameworkCore.Tools >= 10.0.7",
+      "Quartz >= 3.20.1",
+      "Quartz.Extensions.DependencyInjection >= 3.20.1",
+      "Quartz.Extensions.Hosting >= 3.20.1",
       "Repository >= 1.0.0",
       "Service >= 1.0.0",
       "System.IdentityModel.Tokens.Jwt >= 8.22.0"
@@ -3432,6 +3550,18 @@
           "Microsoft.EntityFrameworkCore.Tools": {
             "target": "Package",
             "version": "[10.0.7, )"
+          },
+          "Quartz": {
+            "target": "Package",
+            "version": "[3.20.1, )"
+          },
+          "Quartz.Extensions.DependencyInjection": {
+            "target": "Package",
+            "version": "[3.20.1, )"
+          },
+          "Quartz.Extensions.Hosting": {
+            "target": "Package",
+            "version": "[3.20.1, )"
           },
           "System.IdentityModel.Tokens.Jwt": {
             "target": "Package",

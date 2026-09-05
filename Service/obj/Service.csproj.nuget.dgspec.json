@@ -754,6 +754,18 @@
             "MailKit": {
               "target": "Package",
               "version": "[4.17.0, )"
+            },
+            "Quartz": {
+              "target": "Package",
+              "version": "[3.20.1, )"
+            },
+            "Quartz.Extensions.DependencyInjection": {
+              "target": "Package",
+              "version": "[3.20.1, )"
+            },
+            "Quartz.Extensions.Hosting": {
+              "target": "Package",
+              "version": "[3.20.1, )"
             }
           },
           "imports": [

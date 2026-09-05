@@ -11,9 +11,9 @@ using Service.BackgroundJobs;
 using Web.Mappers;
 using System.IdentityModel.Tokens.Jwt;  
 using System.Security.Claims;             // Claim, ClaimTypes
-using System.Text;                        // Encoding
 using Microsoft.IdentityModel.Tokens;  
-using Microsoft.AspNetCore.Authentication.JwtBearer;// SymmetricSecurityKey, SigningCredentials, SecurityAlgorithms
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Quartz; // SymmetricSecurityKey, SigningCredentials, SecurityAlgorithms
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,13 +35,30 @@ builder.Services.AddScoped<InventoryItemMapper>();
 builder.Services.AddScoped<CategoryMapper>();
 builder.Services.AddScoped<IngredientReactionMapper>();
 builder.Services.AddSingleton<IExpirationCalculator, ExpirationCalculator>();
+/*
 builder.Services.AddHostedService<BackgroundEtlSyncJob>();
+*/
 builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email"));
 builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 builder.Services.AddScoped<IExpirationCheckService, ExpirationCheckService>();
 builder.Services.AddHostedService<BackgroundExpirationCheckJob>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Services.AddQuartz(q =>   
+{
+    var jobKey = new JobKey("EtlSyncJob");
+    q.AddJob<QuartzEtlSync>(opts => opts.WithIdentity(jobKey));
+    q.AddTrigger(opts => opts
+        .ForJob(jobKey)
+        .WithIdentity("EtlSyncJob-trigger")
+        .StartNow()
+        .WithSimpleSchedule(x => x
+            .WithIntervalInHours(24)
+            .RepeatForever()));
+});
+
+builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 
@@ -64,7 +81,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 
 
-
 builder.Services.Configure<ProductEtlOptions>(builder.Configuration.GetSection("ProductEtl"));
 builder.Services.AddHttpClient<IExternalProductApi, ExternalProductApi>(client =>
 {
@@ -79,8 +95,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 
-builder.Services.AddControllersWithViews();
-
+builder.Services.AddControllers();
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
