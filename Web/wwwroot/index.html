@@ -11,12 +11,7 @@
         .product-card { transition: box-shadow 0.15s ease; }
         .product-card:hover { box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.08); }
         .screen-hidden { display: none !important; }
-        .product-card img {
-            height: 180px;
-            object-fit: contain;
-            padding: 1rem;
-            background-color: #fff;
-        }
+        .section-heading { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.04em; color: #6c757d; border-bottom: 1px solid #e5e0d8; padding-bottom: 0.4rem; }
     </style>
 </head>
 <body>
@@ -65,6 +60,7 @@
         <ul class="nav nav-pills mb-4" role="tablist">
             <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#browseTab">Browse Products</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#inventoryTab" onclick="loadInventory()">My Inventory</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#wishlistTab" onclick="loadWishlist()">Wishlist</button></li>
         </ul>
 
         <div class="tab-content">
@@ -78,12 +74,14 @@
                 </nav>
             </div>
 
-            <!-- My inventory -->
+            <!-- My inventory, grouped by status -->
             <div class="tab-pane fade" id="inventoryTab">
-                <div id="inventoryList" class="row g-3"></div>
-                <nav class="mt-4">
-                    <ul class="pagination justify-content-center" id="inventoryPager"></ul>
-                </nav>
+                <div id="inventorySections"></div>
+            </div>
+
+            <!-- Wishlist, grouped by status -->
+            <div class="tab-pane fade" id="wishlistTab">
+                <div id="wishlistSections"></div>
             </div>
 
         </div>
@@ -146,10 +144,41 @@
     </div>
 </div>
 
+<!-- Move wishlist item to owned modal -->
+<div class="modal fade" id="moveToOwnedModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Move to Inventory</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="moveProductId">
+                <p class="fw-semibold" id="moveProductName"></p>
+
+                <label class="form-label small">Expiration date (optional)</label>
+                <input id="moveExpirationDate" type="date" class="form-control mb-2">
+
+                <label class="form-label small">Opened date (optional)</label>
+                <input id="moveOpenedDate" type="date" class="form-control mb-2">
+
+                <label class="form-label small">PAO months (optional)</label>
+                <input id="movePaoMonths" type="number" class="form-control mb-2">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-dark" onclick="confirmMoveToOwned()">Move to Inventory</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
 <script>
     const API_BASE = window.location.origin + "/api";
     const PAGE_SIZE = 9;
+
+    const INVENTORY_STATUS_ORDER = ["Active", "Opened", "Finished", "Discarded", "Expired"];
+    const WISHLIST_STATUS_ORDER = ["Active", "Discarded"];
 
     // Product browsing state
     let productPage = 1;
@@ -157,9 +186,13 @@
     let isSearching = false;
     let searchResults = []; // used only while searching (client-side paging over the filtered set)
 
-    // Inventory state
+    // Inventory state — raw items, plus a page number per status section
     let allInventory = [];
-    let inventoryPage = 1;
+    let inventorySectionPages = {};
+
+    // Wishlist state — raw items, plus a page number per status section
+    let allWishlist = [];
+    let wishlistSectionPages = {};
 
     function getToken() { return localStorage.getItem("token"); }
 
@@ -239,7 +272,7 @@
         searchTimer = setTimeout(() => {
             if (term.length === 0) {
                 isSearching = false;
-                loadProducts(1); // back to real server-side paging
+                loadProducts(1);
             } else {
                 isSearching = true;
                 loadSearchResults(term);
@@ -254,7 +287,7 @@
         const data = await res.json();
 
         productTotalPages = data.totalPages || 1;
-        renderProductCards(data.items || []);
+        renderProductCards(data.items || [], "productList");
         renderPagerFromTotalPages("productPager", productTotalPages, productPage, (page) => loadProducts(page));
     }
 
@@ -269,7 +302,7 @@
     function renderSearchPage() {
         const start = (productPage - 1) * PAGE_SIZE;
         const pageItems = searchResults.slice(start, start + PAGE_SIZE);
-        renderProductCards(pageItems);
+        renderProductCards(pageItems, "productList");
 
         const totalPages = Math.max(1, Math.ceil(searchResults.length / PAGE_SIZE));
         renderPagerFromTotalPages("productPager", totalPages, productPage, (page) => {
@@ -278,8 +311,8 @@
         });
     }
 
-    function renderProductCards(products) {
-        const container = document.getElementById("productList");
+    function renderProductCards(products, containerId) {
+        const container = document.getElementById(containerId);
         container.innerHTML = "";
 
         if (products.length === 0) {
@@ -288,28 +321,28 @@
         }
 
         products.forEach(p => {
-            // Fallback placeholder image if no URL is returned by the API
-            const imageUrl = p.imageUrl || 'https://via.placeholder.com/300x180?text=No+Image';
-
             const col = document.createElement("div");
             col.className = "col-md-4";
             col.innerHTML = `
-            <div class="card product-card h-100">
-                <img src="${escapeHtml(imageUrl)}" class="card-img-top" alt="${escapeHtml(p.name)}">
-                <div class="card-body d-flex flex-column">
-                    <h6 class="card-title">${escapeHtml(p.name)}</h6>
-                    <p class="card-text text-muted small mb-1">${escapeHtml(p.brand)}</p>
-                    <p class="card-text small mb-3">${(p.categories || []).map(escapeHtml).join(", ")}</p>
-                    <button class="btn btn-sm btn-outline-dark w-100 mt-auto" onclick='openAddModal("${p.id}", ${JSON.stringify(p.name)})'>Add to Inventory</button>
-                </div>
-            </div>
-        `;
+      <div class="card product-card h-100">
+        <div class="card-body">
+          <h6 class="card-title">${escapeHtml(p.name)}</h6>
+          <p class="card-text text-muted small mb-1">${escapeHtml(p.brand)}</p>
+          <p class="card-text small mb-3">${(p.categories || []).map(escapeHtml).join(", ")}</p>
+          <div class="d-flex gap-1">
+            <button class="btn btn-sm btn-outline-dark w-100" onclick='openAddModal("${p.id}", ${JSON.stringify(p.name)})'>Add to Inventory</button>
+            <button class="btn btn-sm btn-outline-secondary w-100" onclick='addToWishlist("${p.id}")'>Add to Wishlist</button>
+          </div>
+        </div>
+      </div>
+    `;
             container.appendChild(col);
         });
     }
 
     function renderPagerFromTotalPages(elementId, totalPages, currentPage, onPageClick) {
         const pager = document.getElementById(elementId);
+        if (!pager) return;
         pager.innerHTML = "";
 
         if (totalPages <= 1) return;
@@ -369,26 +402,77 @@
         }
     }
 
-    // ---- Inventory list ----
+    // ---- Add to wishlist (from Browse tab) ----
+    async function addToWishlist(productId) {
+        const res = await fetch(`${API_BASE}/wishlistitem/${productId}`, {
+            method: "POST",
+            headers: authHeaders()
+        });
+
+        if (res.ok) {
+            alert("Added to your wishlist.");
+        } else {
+            const err = await res.json().catch(() => ({}));
+            alert("Could not add to wishlist: " + (err.message || res.status));
+        }
+    }
+
+    // ---- Inventory, grouped into sections by status ----
     async function loadInventory() {
         const res = await fetch(`${API_BASE}/inventoryitem`, { headers: authHeaders() });
         allInventory = await res.json();
-        inventoryPage = 1;
-        renderInventoryPage();
+        inventorySectionPages = {};
+        renderInventorySections();
     }
 
-    function renderInventoryPage() {
-        const container = document.getElementById("inventoryList");
-        container.innerHTML = "";
+    function groupByStatus(items, statusOrder) {
+        const groups = {};
+        statusOrder.forEach(s => groups[s] = []);
+        items.forEach(item => {
+            if (!groups[item.status]) groups[item.status] = []; // catch-all for any unexpected status
+            groups[item.status].push(item);
+        });
+        return groups;
+    }
+
+    function renderInventorySections() {
+        const root = document.getElementById("inventorySections");
+        root.innerHTML = "";
 
         if (allInventory.length === 0) {
-            container.innerHTML = `<p class="text-muted">Your inventory is empty.</p>`;
-            document.getElementById("inventoryPager").innerHTML = "";
+            root.innerHTML = `<p class="text-muted">Your inventory is empty.</p>`;
             return;
         }
 
-        const start = (inventoryPage - 1) * PAGE_SIZE;
-        const pageItems = allInventory.slice(start, start + PAGE_SIZE);
+        const groups = groupByStatus(allInventory, INVENTORY_STATUS_ORDER);
+
+        INVENTORY_STATUS_ORDER.forEach(status => {
+            const items = groups[status] || [];
+            if (items.length === 0) return;
+
+            const section = document.createElement("div");
+            section.className = "mb-5";
+            section.innerHTML = `
+      <div class="d-flex justify-content-between align-items-baseline mb-3">
+        <span class="section-heading">${status} (${items.length})</span>
+      </div>
+      <div class="row g-3" id="inventorySection-${status}"></div>
+      <nav class="mt-3"><ul class="pagination justify-content-center" id="inventoryPager-${status}"></ul></nav>
+    `;
+            root.appendChild(section);
+
+            if (!(status in inventorySectionPages)) inventorySectionPages[status] = 1;
+            renderInventoryStatusPage(status, items);
+        });
+    }
+
+    function renderInventoryStatusPage(status, items) {
+        const page = inventorySectionPages[status] || 1;
+        const container = document.getElementById(`inventorySection-${status}`);
+        container.innerHTML = "";
+
+        const start = (page - 1) * PAGE_SIZE;
+        const pageItems = items.slice(start, start + PAGE_SIZE);
 
         pageItems.forEach(i => {
             const col = document.createElement("div");
@@ -397,7 +481,6 @@
       <div class="card h-100">
         <div class="card-body">
           <h6 class="card-title">${escapeHtml(i.productName)}</h6>
-          <span class="badge bg-secondary mb-2">${escapeHtml(i.status)}</span>
           ${i.rating ? `<p class="small mb-1">Rating: ${"★".repeat(i.rating)}${"☆".repeat(5 - i.rating)}</p>` : ""}
           <p class="small text-muted mb-1">${i.expirationDate ? "Expires: " + i.expirationDate.substring(0,10) : "No expiration set"}</p>
           <p class="small mb-2">${i.comment ? escapeHtml(i.comment) : ""}</p>
@@ -414,10 +497,13 @@
         });
 
         renderPagerFromTotalPages(
-            "inventoryPager",
-            Math.max(1, Math.ceil(allInventory.length / PAGE_SIZE)),
-            inventoryPage,
-            (page) => { inventoryPage = page; renderInventoryPage(); }
+            `inventoryPager-${status}`,
+            Math.max(1, Math.ceil(items.length / PAGE_SIZE)),
+            page,
+            (newPage) => {
+                inventorySectionPages[status] = newPage;
+                renderInventoryStatusPage(status, items);
+            }
         );
     }
 
@@ -463,6 +549,128 @@
             loadInventory();
         } else {
             alert("Could not save changes.");
+        }
+    }
+
+    // ---- Wishlist, grouped into sections by status ----
+    async function loadWishlist() {
+        const res = await fetch(`${API_BASE}/wishlistitem`, { headers: authHeaders() });
+        allWishlist = await res.json();
+        wishlistSectionPages = {};
+        renderWishlistSections();
+    }
+
+    function renderWishlistSections() {
+        const root = document.getElementById("wishlistSections");
+        root.innerHTML = "";
+
+        if (allWishlist.length === 0) {
+            root.innerHTML = `<p class="text-muted">Your wishlist is empty.</p>`;
+            return;
+        }
+
+        const groups = groupByStatus(allWishlist, WISHLIST_STATUS_ORDER);
+
+        WISHLIST_STATUS_ORDER.forEach(status => {
+            const items = groups[status] || [];
+            if (items.length === 0) return;
+
+            const section = document.createElement("div");
+            section.className = "mb-5";
+            section.innerHTML = `
+      <div class="d-flex justify-content-between align-items-baseline mb-3">
+        <span class="section-heading">${status} (${items.length})</span>
+      </div>
+      <div class="row g-3" id="wishlistSection-${status}"></div>
+      <nav class="mt-3"><ul class="pagination justify-content-center" id="wishlistPager-${status}"></ul></nav>
+    `;
+            root.appendChild(section);
+
+            if (!(status in wishlistSectionPages)) wishlistSectionPages[status] = 1;
+            renderWishlistStatusPage(status, items);
+        });
+    }
+
+    function renderWishlistStatusPage(status, items) {
+        const page = wishlistSectionPages[status] || 1;
+        const container = document.getElementById(`wishlistSection-${status}`);
+        container.innerHTML = "";
+
+        const start = (page - 1) * PAGE_SIZE;
+        const pageItems = items.slice(start, start + PAGE_SIZE);
+
+        pageItems.forEach(w => {
+            const col = document.createElement("div");
+            col.className = "col-md-4";
+            const actions = status === "Active"
+                ? `<button class="btn btn-sm btn-dark" onclick='openMoveToOwnedModal("${w.productId}", ${JSON.stringify(w.productName)})'>Move to Inventory</button>
+         <button class="btn btn-sm btn-outline-danger" onclick="discardWishlistItem('${w.productId}')">Remove</button>`
+                : "";
+            col.innerHTML = `
+      <div class="card h-100">
+        <div class="card-body">
+          <h6 class="card-title">${escapeHtml(w.productName)}</h6>
+          <div class="d-flex gap-1 flex-wrap">${actions}</div>
+        </div>
+      </div>
+    `;
+            container.appendChild(col);
+        });
+
+        renderPagerFromTotalPages(
+            `wishlistPager-${status}`,
+            Math.max(1, Math.ceil(items.length / PAGE_SIZE)),
+            page,
+            (newPage) => {
+                wishlistSectionPages[status] = newPage;
+                renderWishlistStatusPage(status, items);
+            }
+        );
+    }
+
+    async function discardWishlistItem(productId) {
+        const res = await fetch(`${API_BASE}/wishlistitem/${productId}/discard`, {
+            method: "PATCH",
+            headers: authHeaders()
+        });
+        if (res.ok) {
+            loadWishlist();
+        } else {
+            alert("Could not remove item.");
+        }
+    }
+
+    function openMoveToOwnedModal(productId, productName) {
+        document.getElementById("moveProductId").value = productId;
+        document.getElementById("moveProductName").innerText = productName;
+        document.getElementById("moveExpirationDate").value = "";
+        document.getElementById("moveOpenedDate").value = "";
+        document.getElementById("movePaoMonths").value = "";
+        new bootstrap.Modal(document.getElementById("moveToOwnedModal")).show();
+    }
+
+    async function confirmMoveToOwned() {
+        const productId = document.getElementById("moveProductId").value;
+        const body = {
+            expirationDate: document.getElementById("moveExpirationDate").value || null,
+            openedDate: document.getElementById("moveOpenedDate").value || null,
+            paoMonths: document.getElementById("movePaoMonths").value ? parseInt(document.getElementById("movePaoMonths").value) : null
+        };
+
+        const res = await fetch(`${API_BASE}/wishlistitem/${productId}/move-to-owned`, {
+            method: "POST",
+            headers: authHeaders(),
+            body: JSON.stringify(body)
+        });
+
+        bootstrap.Modal.getInstance(document.getElementById("moveToOwnedModal")).hide();
+
+        if (res.ok) {
+            alert("Moved to your inventory.");
+            loadWishlist();
+        } else {
+            const err = await res.json().catch(() => ({}));
+            alert("Could not move item: " + (err.message || res.status));
         }
     }
 

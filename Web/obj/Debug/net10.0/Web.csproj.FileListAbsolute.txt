@@ -309,4 +309,4 @@ C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\ExcelNumberF
 C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\RBush.dll
 C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\SixLabors.Fonts.dll
 C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\System.IO.Packaging.dll
-C:\Users\isido\RiderProjects\SkinInventoryApp\Web\obj\Debug\net10.0\compressed\m0cowydmqe-{0}-9p9bfcihze-9p9bfcihze.gz
+C:\Users\isido\RiderProjects\SkinInventoryApp\Web\obj\Debug\net10.0\compressed\m0cowydmqe-{0}-vqisimq1ai-vqisimq1ai.gz
