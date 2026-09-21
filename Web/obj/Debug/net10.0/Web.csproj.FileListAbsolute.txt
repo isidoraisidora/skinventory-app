@@ -301,7 +301,6 @@ C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\MimeKit.dll
 C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\Quartz.dll
 C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\Quartz.Extensions.DependencyInjection.dll
 C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\Quartz.Extensions.Hosting.dll
-C:\Users\isido\RiderProjects\SkinInventoryApp\Web\obj\Debug\net10.0\compressed\m0cowydmqe-{0}-clvuhks1kd-clvuhks1kd.gz
 C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\ClosedXML.dll
 C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\ClosedXML.Parser.dll
 C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\DocumentFormat.OpenXml.dll
@@ -310,3 +309,4 @@ C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\ExcelNumberF
 C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\RBush.dll
 C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\SixLabors.Fonts.dll
 C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\System.IO.Packaging.dll
+C:\Users\isido\RiderProjects\SkinInventoryApp\Web\obj\Debug\net10.0\compressed\m0cowydmqe-{0}-9p9bfcihze-9p9bfcihze.gz

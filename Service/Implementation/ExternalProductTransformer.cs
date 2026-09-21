@@ -12,7 +12,8 @@ public static class ExternalProductTransformer
             Name = string.IsNullOrWhiteSpace(dto.ProductName) ? "Unknown product" : dto.ProductName,
             Brand = ExtractFirstBrand(dto.Brands),
             Description = dto.IngredientsText,
-            Barcode = dto.Code
+            Barcode = dto.Code,
+            ImageUrl = dto.ImageUrl
         };
     }
 

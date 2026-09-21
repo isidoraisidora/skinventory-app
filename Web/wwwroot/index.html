@@ -11,6 +11,12 @@
         .product-card { transition: box-shadow 0.15s ease; }
         .product-card:hover { box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.08); }
         .screen-hidden { display: none !important; }
+        .product-card img {
+            height: 180px;
+            object-fit: contain;
+            padding: 1rem;
+            background-color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -282,18 +288,22 @@
         }
 
         products.forEach(p => {
+            // Fallback placeholder image if no URL is returned by the API
+            const imageUrl = p.imageUrl || 'https://via.placeholder.com/300x180?text=No+Image';
+
             const col = document.createElement("div");
             col.className = "col-md-4";
             col.innerHTML = `
-      <div class="card product-card h-100">
-        <div class="card-body">
-          <h6 class="card-title">${escapeHtml(p.name)}</h6>
-          <p class="card-text text-muted small mb-1">${escapeHtml(p.brand)}</p>
-          <p class="card-text small mb-3">${(p.categories || []).map(escapeHtml).join(", ")}</p>
-          <button class="btn btn-sm btn-outline-dark w-100" onclick='openAddModal("${p.id}", ${JSON.stringify(p.name)})'>Add to Inventory</button>
-        </div>
-      </div>
-    `;
+            <div class="card product-card h-100">
+                <img src="${escapeHtml(imageUrl)}" class="card-img-top" alt="${escapeHtml(p.name)}">
+                <div class="card-body d-flex flex-column">
+                    <h6 class="card-title">${escapeHtml(p.name)}</h6>
+                    <p class="card-text text-muted small mb-1">${escapeHtml(p.brand)}</p>
+                    <p class="card-text small mb-3">${(p.categories || []).map(escapeHtml).join(", ")}</p>
+                    <button class="btn btn-sm btn-outline-dark w-100 mt-auto" onclick='openAddModal("${p.id}", ${JSON.stringify(p.name)})'>Add to Inventory</button>
+                </div>
+            </div>
+        `;
             container.appendChild(col);
         });
     }
