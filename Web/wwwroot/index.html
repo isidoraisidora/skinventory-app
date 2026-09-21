@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Skincare Inventory</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #faf7f2; }
+        .navbar-brand { font-weight: 600; letter-spacing: -0.02em; }
+        .product-card { transition: box-shadow 0.15s ease; }
+        .product-card:hover { box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.08); }
+        .screen-hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<!-- Login / Register screen -->
+<div id="auth" class="d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+    <div class="card shadow-sm" style="width: 360px;">
+        <div class="card-body p-4">
+            <h4 class="mb-3">Skincare Inventory</h4>
+
+            <ul class="nav nav-tabs mb-3" role="tablist">
+                <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#loginTab">Log in</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#registerTab">Register</button></li>
+            </ul>
+
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="loginTab">
+                    <input id="loginEmail" class="form-control mb-2" placeholder="Email" type="email">
+                    <input id="loginPassword" class="form-control mb-3" placeholder="Password" type="password">
+                    <button class="btn btn-dark w-100" onclick="login()">Log in</button>
+                    <div id="loginError" class="text-danger small mt-2"></div>
+                </div>
+
+                <div class="tab-pane fade" id="registerTab">
+                    <input id="regFirstName" class="form-control mb-2" placeholder="First name">
+                    <input id="regLastName" class="form-control mb-2" placeholder="Last name">
+                    <input id="regUsername" class="form-control mb-2" placeholder="Username">
+                    <input id="regEmail" class="form-control mb-2" placeholder="Email" type="email">
+                    <input id="regPassword" class="form-control mb-3" placeholder="Password" type="password">
+                    <button class="btn btn-outline-dark w-100" onclick="register()">Create account</button>
+                    <div id="registerError" class="text-danger small mt-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main app -->
+<div id="app" class="screen-hidden">
+    <nav class="navbar navbar-light bg-white border-bottom px-3">
+        <span class="navbar-brand">Skincare Inventory</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="logout()">Log out</button>
+    </nav>
+
+    <div class="container py-4">
+        <ul class="nav nav-pills mb-4" role="tablist">
+            <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#browseTab">Browse Products</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#inventoryTab" onclick="loadInventory()">My Inventory</button></li>
+        </ul>
+
+        <div class="tab-content">
+
+            <!-- Browse / search products -->
+            <div class="tab-pane fade show active" id="browseTab">
+                <input id="searchBox" class="form-control mb-3" placeholder="Search products by name... (clear to browse page by page)">
+                <div id="productList" class="row g-3"></div>
+                <nav class="mt-4">
+                    <ul class="pagination justify-content-center" id="productPager"></ul>
+                </nav>
+            </div>
+
+            <!-- My inventory -->
+            <div class="tab-pane fade" id="inventoryTab">
+                <div id="inventoryList" class="row g-3"></div>
+                <nav class="mt-4">
+                    <ul class="pagination justify-content-center" id="inventoryPager"></ul>
+                </nav>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Add to inventory modal -->
+<div class="modal fade" id="addModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add to Inventory</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="addProductId">
+                <p class="fw-semibold" id="addProductName"></p>
+
+                <label class="form-label small">Expiration date (optional)</label>
+                <input id="addExpirationDate" type="date" class="form-control mb-2">
+
+                <label class="form-label small">Opened date (optional)</label>
+                <input id="addOpenedDate" type="date" class="form-control mb-2">
+
+                <label class="form-label small">PAO months (optional)</label>
+                <input id="addPaoMonths" type="number" class="form-control mb-2">
+
+                <label class="form-label small">Comment (optional)</label>
+                <textarea id="addComment" class="form-control"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-dark" onclick="confirmAddToInventory()">Add</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit inventory item modal -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Inventory Item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editProductId">
+                <p class="fw-semibold" id="editProductName"></p>
+
+                <label class="form-label small">Rating (1-5, optional)</label>
+                <input id="editRating" type="number" min="1" max="5" class="form-control mb-2">
+
+                <label class="form-label small">Comment</label>
+                <textarea id="editComment" class="form-control"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-dark" onclick="confirmEditInventoryItem()">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script>
+    const API_BASE = window.location.origin + "/api";
+    const PAGE_SIZE = 9;
+
+    // Product browsing state
+    let productPage = 1;
+    let productTotalPages = 1;
+    let isSearching = false;
+    let searchResults = []; // used only while searching (client-side paging over the filtered set)
+
+    // Inventory state
+    let allInventory = [];
+    let inventoryPage = 1;
+
+    function getToken() { return localStorage.getItem("token"); }
+
+    function authHeaders() {
+        return { "Authorization": "Bearer " + getToken(), "Content-Type": "application/json" };
+    }
+
+    function showApp() {
+        document.getElementById("auth").classList.add("screen-hidden");
+        document.getElementById("app").classList.remove("screen-hidden");
+        loadProducts();
+    }
+
+    function showAuth() {
+        document.getElementById("app").classList.add("screen-hidden");
+        document.getElementById("auth").classList.remove("screen-hidden");
+    }
+
+    if (getToken()) showApp();
+
+    async function register() {
+        const body = {
+            firstName: document.getElementById("regFirstName").value,
+            lastName: document.getElementById("regLastName").value,
+            username: document.getElementById("regUsername").value,
+            email: document.getElementById("regEmail").value,
+            password: document.getElementById("regPassword").value
+        };
+        try {
+            const res = await fetch(`${API_BASE}/auth/register`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            });
+            if (res.ok) {
+                document.querySelector('[data-bs-target="#loginTab"]').click();
+            } else {
+                document.getElementById("registerError").innerText = "Registration failed. Check your details.";
+            }
+        } catch (err) {
+            document.getElementById("registerError").innerText = "Could not reach the server.";
+        }
+    }
+
+    async function login() {
+        const body = {
+            email: document.getElementById("loginEmail").value,
+            password: document.getElementById("loginPassword").value
+        };
+        try {
+            const res = await fetch(`${API_BASE}/auth/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            });
+            if (res.ok) {
+                const data = await res.json();
+                localStorage.setItem("token", data.token);
+                showApp();
+            } else {
+                document.getElementById("loginError").innerText = "Invalid email or password.";
+            }
+        } catch (err) {
+            document.getElementById("loginError").innerText = "Could not reach the server.";
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem("token");
+        showAuth();
+    }
+
+    let searchTimer;
+    document.getElementById("searchBox").addEventListener("input", (e) => {
+        clearTimeout(searchTimer);
+        const term = e.target.value.trim();
+        searchTimer = setTimeout(() => {
+            if (term.length === 0) {
+                isSearching = false;
+                loadProducts(1); // back to real server-side paging
+            } else {
+                isSearching = true;
+                loadSearchResults(term);
+            }
+        }, 300);
+    });
+
+    // ---- Server-side paged browsing (no search term) ----
+    async function loadProducts(page = 1) {
+        productPage = page;
+        const res = await fetch(`${API_BASE}/product/paged?pageNumber=${page}&pageSize=${PAGE_SIZE}`);
+        const data = await res.json();
+
+        productTotalPages = data.totalPages || 1;
+        renderProductCards(data.items || []);
+        renderPagerFromTotalPages("productPager", productTotalPages, productPage, (page) => loadProducts(page));
+    }
+
+    // ---- Client-side paging over a search result set ----
+    async function loadSearchResults(name) {
+        const res = await fetch(`${API_BASE}/product?name=${encodeURIComponent(name)}`);
+        searchResults = await res.json();
+        productPage = 1;
+        renderSearchPage();
+    }
+
+    function renderSearchPage() {
+        const start = (productPage - 1) * PAGE_SIZE;
+        const pageItems = searchResults.slice(start, start + PAGE_SIZE);
+        renderProductCards(pageItems);
+
+        const totalPages = Math.max(1, Math.ceil(searchResults.length / PAGE_SIZE));
+        renderPagerFromTotalPages("productPager", totalPages, productPage, (page) => {
+            productPage = page;
+            renderSearchPage();
+        });
+    }
+
+    function renderProductCards(products) {
+        const container = document.getElementById("productList");
+        container.innerHTML = "";
+
+        if (products.length === 0) {
+            container.innerHTML = `<p class="text-muted">No products found.</p>`;
+            return;
+        }
+
+        products.forEach(p => {
+            const col = document.createElement("div");
+            col.className = "col-md-4";
+            col.innerHTML = `
+      <div class="card product-card h-100">
+        <div class="card-body">
+          <h6 class="card-title">${escapeHtml(p.name)}</h6>
+          <p class="card-text text-muted small mb-1">${escapeHtml(p.brand)}</p>
+          <p class="card-text small mb-3">${(p.categories || []).map(escapeHtml).join(", ")}</p>
+          <button class="btn btn-sm btn-outline-dark w-100" onclick='openAddModal("${p.id}", ${JSON.stringify(p.name)})'>Add to Inventory</button>
+        </div>
+      </div>
+    `;
+            container.appendChild(col);
+        });
+    }
+
+    function renderPagerFromTotalPages(elementId, totalPages, currentPage, onPageClick) {
+        const pager = document.getElementById(elementId);
+        pager.innerHTML = "";
+
+        if (totalPages <= 1) return;
+
+        const addPageItem = (label, page, disabled, active) => {
+            const li = document.createElement("li");
+            li.className = "page-item" + (disabled ? " disabled" : "") + (active ? " active" : "");
+            const a = document.createElement("a");
+            a.className = "page-link";
+            a.href = "#";
+            a.innerText = label;
+            a.onclick = (e) => { e.preventDefault(); if (!disabled) onPageClick(page); };
+            li.appendChild(a);
+            pager.appendChild(li);
+        };
+
+        addPageItem("Previous", currentPage - 1, currentPage === 1, false);
+        for (let i = 1; i <= totalPages; i++) {
+            addPageItem(String(i), i, false, i === currentPage);
+        }
+        addPageItem("Next", currentPage + 1, currentPage === totalPages, false);
+    }
+
+    // ---- Add to inventory ----
+    function openAddModal(productId, productName) {
+        document.getElementById("addProductId").value = productId;
+        document.getElementById("addProductName").innerText = productName;
+        document.getElementById("addExpirationDate").value = "";
+        document.getElementById("addOpenedDate").value = "";
+        document.getElementById("addPaoMonths").value = "";
+        document.getElementById("addComment").value = "";
+        new bootstrap.Modal(document.getElementById("addModal")).show();
+    }
+
+    async function confirmAddToInventory() {
+        const body = {
+            productId: document.getElementById("addProductId").value,
+            expirationDate: document.getElementById("addExpirationDate").value || null,
+            openedDate: document.getElementById("addOpenedDate").value || null,
+            paoMonths: document.getElementById("addPaoMonths").value ? parseInt(document.getElementById("addPaoMonths").value) : null,
+            comment: document.getElementById("addComment").value || null
+        };
+
+        const res = await fetch(`${API_BASE}/inventoryitem`, {
+            method: "POST",
+            headers: authHeaders(),
+            body: JSON.stringify(body)
+        });
+
+        bootstrap.Modal.getInstance(document.getElementById("addModal")).hide();
+
+        if (res.ok) {
+            alert("Added to your inventory.");
+        } else {
+            const err = await res.json().catch(() => ({}));
+            alert("Could not add product: " + (err.message || res.status));
+        }
+    }
+
+    // ---- Inventory list ----
+    async function loadInventory() {
+        const res = await fetch(`${API_BASE}/inventoryitem`, { headers: authHeaders() });
+        allInventory = await res.json();
+        inventoryPage = 1;
+        renderInventoryPage();
+    }
+
+    function renderInventoryPage() {
+        const container = document.getElementById("inventoryList");
+        container.innerHTML = "";
+
+        if (allInventory.length === 0) {
+            container.innerHTML = `<p class="text-muted">Your inventory is empty.</p>`;
+            document.getElementById("inventoryPager").innerHTML = "";
+            return;
+        }
+
+        const start = (inventoryPage - 1) * PAGE_SIZE;
+        const pageItems = allInventory.slice(start, start + PAGE_SIZE);
+
+        pageItems.forEach(i => {
+            const col = document.createElement("div");
+            col.className = "col-md-4";
+            col.innerHTML = `
+      <div class="card h-100">
+        <div class="card-body">
+          <h6 class="card-title">${escapeHtml(i.productName)}</h6>
+          <span class="badge bg-secondary mb-2">${escapeHtml(i.status)}</span>
+          ${i.rating ? `<p class="small mb-1">Rating: ${"★".repeat(i.rating)}${"☆".repeat(5 - i.rating)}</p>` : ""}
+          <p class="small text-muted mb-1">${i.expirationDate ? "Expires: " + i.expirationDate.substring(0,10) : "No expiration set"}</p>
+          <p class="small mb-2">${i.comment ? escapeHtml(i.comment) : ""}</p>
+          <div class="d-flex gap-1 flex-wrap">
+            <button class="btn btn-sm btn-outline-secondary" onclick='openEditModal("${i.productId}", ${JSON.stringify(i.productName)}, ${i.rating || "null"}, ${JSON.stringify(i.comment || "")})'>Edit</button>
+            ${i.status === "Active" ? `<button class="btn btn-sm btn-outline-primary" onclick="transition('${i.productId}','open')">Open</button>` : ""}
+            ${i.status === "Opened" ? `<button class="btn btn-sm btn-outline-success" onclick="transition('${i.productId}','finish')">Finish</button>` : ""}
+            ${(i.status === "Active" || i.status === "Opened") ? `<button class="btn btn-sm btn-outline-danger" onclick="transition('${i.productId}','discard')">Discard</button>` : ""}
+          </div>
+        </div>
+      </div>
+    `;
+            container.appendChild(col);
+        });
+
+        renderPagerFromTotalPages(
+            "inventoryPager",
+            Math.max(1, Math.ceil(allInventory.length / PAGE_SIZE)),
+            inventoryPage,
+            (page) => { inventoryPage = page; renderInventoryPage(); }
+        );
+    }
+
+    async function transition(productId, action) {
+        const res = await fetch(`${API_BASE}/inventoryitem/${productId}/${action}`, {
+            method: "PATCH",
+            headers: authHeaders()
+        });
+        if (res.ok) {
+            loadInventory();
+        } else {
+            alert("Action failed.");
+        }
+    }
+
+    // ---- Edit inventory item (comment / rating) ----
+    function openEditModal(productId, productName, rating, comment) {
+        document.getElementById("editProductId").value = productId;
+        document.getElementById("editProductName").innerText = productName;
+        document.getElementById("editRating").value = rating || "";
+        document.getElementById("editComment").value = comment || "";
+        new bootstrap.Modal(document.getElementById("editModal")).show();
+    }
+
+    async function confirmEditInventoryItem() {
+        const productId = document.getElementById("editProductId").value;
+        const ratingValue = document.getElementById("editRating").value;
+
+        const body = {
+            comment: document.getElementById("editComment").value || null,
+            rating: ratingValue ? parseInt(ratingValue) : null
+        };
+
+        const res = await fetch(`${API_BASE}/inventoryitem/${productId}`, {
+            method: "PUT",
+            headers: authHeaders(),
+            body: JSON.stringify(body)
+        });
+
+        bootstrap.Modal.getInstance(document.getElementById("editModal")).hide();
+
+        if (res.ok) {
+            loadInventory();
+        } else {
+            alert("Could not save changes.");
+        }
+    }
+
+    function escapeHtml(str) {
+        if (!str) return "";
+        return str.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    }
+</script>
+
+</body>
+</html>

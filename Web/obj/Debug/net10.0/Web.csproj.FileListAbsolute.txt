@@ -298,3 +298,7 @@ C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\System.Ident
 C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\BouncyCastle.Cryptography.dll
 C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\MailKit.dll
 C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\MimeKit.dll
+C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\Quartz.dll
+C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\Quartz.Extensions.DependencyInjection.dll
+C:\Users\isido\RiderProjects\SkinInventoryApp\Web\bin\Debug\net10.0\Quartz.Extensions.Hosting.dll
+C:\Users\isido\RiderProjects\SkinInventoryApp\Web\obj\Debug\net10.0\compressed\m0cowydmqe-{0}-clvuhks1kd-clvuhks1kd.gz
