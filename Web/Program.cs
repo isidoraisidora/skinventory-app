@@ -26,6 +26,7 @@ builder.Services.AddScoped<IIngredientReactionService, IngredientReactionService
 builder.Services.AddScoped<IIngredientService, IngredientService>();
 builder.Services.AddScoped<IInventoryItemService, InventoryItemService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IExcelExportService, ExcelExportService>();
 builder.Services.AddScoped<IWishlistItemService, WishlistItemService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IEtlService, EtlSyncService>();
