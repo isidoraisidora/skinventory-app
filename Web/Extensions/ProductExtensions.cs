@@ -14,7 +14,8 @@ public static class ProductExtensions
             product.Brand,
             product.Price,
             product.Description,
-            product.ProductCategories?.Select(pc => pc.Category.Name).ToList() ?? new List<string>()
+            product.ProductCategories?.Select(pc => pc.Category.Name).ToList() ?? new List<string>(),
+            product.Ingredients?.Select(i => new IngredientSummary(i.Id, i.Name)).ToList() ?? new List<IngredientSummary>()
         );
     }
     

@@ -888,10 +888,17 @@
         document.getElementById("logReactionSeverity").value = "";
         document.getElementById("logReactionNote").value = "";
 
-        const res = await fetch(`${API_BASE}/ingredient`);
-        const ingredients = await res.json();
+        const res = await fetch(`${API_BASE}/product/${productId}`);
+        const product = await res.json();
         const select = document.getElementById("logReactionIngredient");
-        select.innerHTML = ingredients.map(ing => `<option value="${ing.id}">${escapeHtml(ing.name)}</option>`).join("");
+
+        if (!product.ingredients || product.ingredients.length === 0) {
+            select.innerHTML = `<option value="" disabled selected>No ingredient data for this product</option>`;
+        } else {
+            select.innerHTML = product.ingredients
+                .map(ing => `<option value="${ing.id}">${escapeHtml(ing.name)}</option>`)
+                .join("");
+        }
 
         new bootstrap.Modal(document.getElementById("logProductReactionModal")).show();
     }
@@ -903,7 +910,7 @@
             alert("Please enter a severity from 1 to 10.");
             return;
         }
-        
+
         const body = {
             productId: document.getElementById("logReactionProductId").value,
             ingredientId: document.getElementById("logReactionIngredient").value,

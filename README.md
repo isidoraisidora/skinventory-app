@@ -1,10 +1,11 @@
 # Skincare Inventory App
 
-A skincare inventory management system built with ASP.NET Core, allowing users to track owned products, maintain a wishlist, log ingredient reactions, and receive email reminders before products expire. Product data is populated automatically via a scheduled ETL pipeline that pulls from the Open Beauty Facts public API.
+A skincare inventory management system built with ASP.NET Core. Users can browse a product catalog, track owned products, maintain a wishlist, log ingredient allergies/reactions, and receive email reminders before products expire. Product data is populated automatically via a scheduled ETL pipeline that pulls from the Open Beauty Facts public API. A lightweight HTML/Bootstrap frontend is included for demoing the full flow without a separate testing tool.
 
 ## Tech Stack
 
 - **Backend:** ASP.NET Core Web API (.NET 10)
+- **Frontend:** Single-page HTML + Bootstrap 5 + vanilla JavaScript (served as a static file from the API itself)
 - **Database:** SQLite (via Entity Framework Core)
 - **Authentication:** Custom JWT bearer authentication (no ASP.NET Core Identity)
 - **Scheduling:** Quartz.NET
@@ -19,7 +20,7 @@ The solution is organized into four layered projects:
 Domain      — entities, enums, DTOs, config, and pure domain services (no external dependencies)
 Repository  — EF Core DbContext, generic repository implementation
 Service     — business logic, use-case orchestration, external API clients, background jobs
-Web         — controllers, request/response DTOs, mappers, composition root (Program.cs)
+Web         — controllers, request/response DTOs, mappers, static frontend, composition root (Program.cs)
 ```
 
 Dependencies flow inward: `Web` depends on `Service` and `Repository`; `Service` and `Repository` both depend on `Domain`. `Domain` has no dependencies on any other project.
@@ -31,18 +32,23 @@ Each domain area (`Product`, `InventoryItem`, `WishlistItem`, `Category`, `Ingre
 | Entity | Description |
 |---|---|
 | `User` | Application user; plain entity, not tied to ASP.NET Core Identity |
-| `Product` | Shared catalog item (name, brand, barcode, image); populated via manual entry or the ETL pipeline |
+| `Product` | Shared catalog item (name, brand, barcode, image, price, ingredients); populated via manual entry or the ETL pipeline |
 | `Category` | Fixed taxonomy (Skincare, Bodycare, Cosmetics, Sun Care); seeded at startup |
 | `ProductCategory` | Many-to-many join between `Product` and `Category` (composite key) |
 | `Ingredient` | Shared ingredient reference data, parsed from product ingredient lists during ETL |
-| `InventoryItem` | A specific product a specific user owns, with purchase/opened/expiration dates, PAO tracking, rating, and status |
+| `InventoryItem` | A specific product a specific user owns, with purchase/opened/expiration dates, PAO tracking, rating, comment, and status |
 | `WishlistItem` | A product a specific user wants, with its own status lifecycle |
-| `IngredientReaction` | **Ternary relation** — links `User` + `Product` + `Ingredient`, recording a reaction type and severity |
+| `IngredientReaction` | **Ternary relation** — links `User` + `Ingredient`, with an optional `Product` link, recording a reaction type and severity |
 | `EtlSyncLog` | Audit record of each ETL sync run (success/failure, counts, timestamps) |
 
 ### Ternary Relation
 
-`IngredientReaction` connects three independent entities (`User`, `Product`, `Ingredient`) in a single relation, each with its own foreign key, plus attributes of its own (`ReactionType`, `ReactionSeverity`, `Note`). This powers a business-logic feature: before a user adds a product, the system can check whether that product contains any ingredient the user has previously reacted to, via `GetConflictingIngredientsAsync`.
+`IngredientReaction` connects `User`, `Ingredient`, and (optionally) `Product` in a single relation, each with its own foreign key, plus attributes of its own (`ReactionType`, `ReactionSeverity`, `Note`). `ProductId` is nullable to support two distinct use cases from the same entity:
+
+- **A general allergy declaration** (`ProductId = null`) — "I'm allergic to Niacinamide," independent of any specific product.
+- **A reaction logged against a specific owned product** (`ProductId` set) — "I used this product and reacted to this ingredient in it," exercising the full three-way relation between `User`, `Product`, and `Ingredient`.
+
+This powers a business-logic feature: before a user adds a product to their inventory or wishlist, the system checks whether that product contains any ingredient the user has previously reacted to (`GetConflictingIngredientsAsync`), warning them before they proceed.
 
 ## Business Logic Highlights
 
@@ -66,6 +72,10 @@ Active/Opened → Expired   (system-driven, via the scheduled expiration check j
 ```
 
 `Finished`, `Discarded`, and `Expired` are terminal — no transition exists back out of them. Each transition is exposed as its own service method (`OpenProductAsync`, `FinishProductAsync`, `DiscardProductAsync`) with its own guard clause, rather than a single generic status-setter, so illegal transitions are rejected explicitly.
+
+### Ingredient Conflict Warnings
+
+Before a product is added to a user's inventory or wishlist, the frontend checks `GET /api/ingredientreaction/conflicts/{productId}`, which cross-references the product's linked ingredients against the user's logged reactions. If any match, the user is warned before the action proceeds — a direct, practical use of the ternary relation.
 
 ## Integrations
 
@@ -92,7 +102,7 @@ Both recurring background tasks are scheduled through Quartz rather than manual 
 | `QuartzEtlSync` | Every 24 hours | Runs the ETL sync described above |
 | `QuartzExpirationCheck` | Weekly (cron: `0 0 3 ? * MON`, every Monday at 3 AM) | Scans inventory for expiring/expired items |
 
-Jobs are registered with `AddJob<T>` and their triggers with `AddTrigger`, using either a simple interval schedule or a cron schedule depending on the job. Quartz's hosted service (`AddQuartzHostedService`) runs these on the configured intervals for the lifetime of the application.
+Jobs are registered with `AddJob<T>` and their triggers with `AddTrigger`, using either a simple interval schedule or a cron schedule depending on the job. Quartz's hosted service (`AddQuartzHostedService`) runs these on the configured intervals for the lifetime of the application. Both jobs can also be triggered manually via API endpoints for testing/demo purposes (see below).
 
 ### Asynchronous Queue-Based Processing
 
@@ -119,6 +129,17 @@ POST /api/auth/login
 
 A successful login returns a JWT containing the user's ID as a `ClaimTypes.NameIdentifier` claim, which `ICurrentUserService` reads on every authenticated request to scope data to the logged-in user.
 
+## Frontend
+
+A single-page frontend (`Web/wwwroot/index.html`) is served as a static file from the same origin as the API, avoiding any CORS configuration. It covers:
+
+- **Login / Register**
+- **Browse Products** — server-side paged (`/api/product/paged`, 9 per page) when browsing, client-side paged search results when a search term is entered (`/api/product?name=`)
+- **My Inventory** — items grouped into sections by status (Active, Opened, Finished, Discarded, Expired), each independently paginated; edit comment/rating; transition status (Open/Finish/Discard); log a reaction to a specific product
+- **Wishlist** — items grouped by status, with actions to move an item to inventory or remove it
+- **My Allergies** — a list of logged ingredient reactions (general or product-specific), with add/remove
+- Ingredient conflict warnings shown before adding a product to inventory or wishlist
+
 ## Getting Started
 
 ### Prerequisites
@@ -141,17 +162,18 @@ A successful login returns a JWT containing the user's ID as a `ClaimTypes.NameI
    ```bash
    dotnet run --project Web
    ```
+5. Open `https://localhost:{port}/index.html` in a browser to use the frontend.
 
-### Testing (Postman)
+### Testing
 
-The API is tested via Postman rather than Swagger. General flow:
+The frontend covers the primary user flow end to end. For direct API testing, Postman is used rather than Swagger:
 
 1. `POST /api/auth/register` — create a user
 2. `POST /api/auth/login` — returns a JWT in the response body
 3. On subsequent requests, set **Authorization → Bearer Token** in Postman and paste the token
-4. `POST /api/etl/sync` — manually trigger the ETL pipeline immediately, without waiting for the daily Quartz schedule (useful for testing/demo)
-5. `GET /api/product` — browse imported products
-6. `POST /api/inventoryitem` — add a product to your inventory (requires a valid `productId` from step 5)
+4. `POST /api/etl/sync` — manually trigger the ETL pipeline immediately, without waiting for the daily Quartz schedule
+5. `GET /api/product` or `GET /api/product/paged` — browse imported products
+6. `POST /api/inventoryitem` — add a product to your inventory (requires a valid `productId`)
 7. `POST /api/expirationcheck/run` — manually trigger the expiration/reminder check, without waiting for the weekly Quartz schedule
 
 Requests with a body must have their Content-Type set to JSON in Postman (the "raw" body type dropdown must say **JSON**, not **Text**), or the API will reject the request with `415 Unsupported Media Type`.
@@ -160,5 +182,6 @@ Requests with a body must have their Content-Type set to JSON in Postman (the "r
 
 - Open Beauty Facts is crowdsourced data; not every product has complete brand, ingredient, or category information. Products missing a name or barcode are filtered out during import.
 - Open Beauty Facts does not provide pricing or fixed expiration dates — these are either left blank on import or filled in manually by the user.
-- Category assignment is derived from which search query found a product; a product may receive no category if it doesn't appear in any of the configured category searches within the configured page limit.
+- Category and ingredient assignment are derived from which search query found a product; a product may receive no category or no ingredients if it doesn't appear in any configured category search, or if its ingredient text couldn't be parsed cleanly.
 - The email queue is in-process (`System.Threading.Channels`), so queued messages are lost if the application restarts before they're processed. A production deployment would use a persistent broker (e.g. RabbitMQ) instead.
+- `Category` does not expose create/update/delete endpoints, since it is treated as a fixed, seeded taxonomy rather than user-editable data.
