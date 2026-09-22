@@ -61,6 +61,7 @@
             <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#browseTab">Browse Products</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#inventoryTab" onclick="loadInventory()">My Inventory</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#wishlistTab" onclick="loadWishlist()">Wishlist</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#allergiesTab" onclick="loadAllergies()">My Allergies</button></li>
         </ul>
 
         <div class="tab-content">
@@ -82,6 +83,13 @@
             <!-- Wishlist, grouped by status -->
             <div class="tab-pane fade" id="wishlistTab">
                 <div id="wishlistSections"></div>
+            </div>
+
+            <!-- My Allergies -->
+            <div class="tab-pane fade" id="allergiesTab">
+                <p class="text-muted small">Ingredients you've declared an allergy or reaction to. You'll get a warning before adding a product containing one of these to your inventory or wishlist.</p>
+                <button class="btn btn-dark mb-3" onclick="openAddAllergyModal()">+ Add Allergy</button>
+                <div id="allergyList" class="row g-2"></div>
             </div>
 
         </div>
@@ -167,6 +175,79 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-dark" onclick="confirmMoveToOwned()">Move to Inventory</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add general allergy modal -->
+<div class="modal fade" id="addAllergyModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Allergy</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <label class="form-label small">Ingredient</label>
+                <select id="allergyIngredient" class="form-select mb-2"></select>
+
+                <label class="form-label small">Reaction type</label>
+                <!-- NOTE: these values must match your ReactionType enum member names exactly -->
+                <select id="allergyType" class="form-select mb-2">
+                    <option value=0>Breakout</option>
+                    <option value=1>Redness</option>
+                    <option value=2>Itching</option>
+                    <option value=3>Dryness</option>
+                    <option value=4>None</option>
+                </select>
+
+                <label class="form-label small">Severity (1-10)</label>
+                <input id="allergySeverity" type="number" min="1" max="10" class="form-control mb-2">
+
+                <label class="form-label small">Note (optional)</label>
+                <textarea id="allergyNote" class="form-control"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-dark" onclick="confirmAddAllergy()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Log a reaction to a specific product modal -->
+<div class="modal fade" id="logProductReactionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Log Reaction to This Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="logReactionProductId">
+                <p class="fw-semibold" id="logReactionProductName"></p>
+
+                <label class="form-label small">Which ingredient in it caused the reaction?</label>
+                <select id="logReactionIngredient" class="form-select mb-2"></select>
+
+                <label class="form-label small">Reaction type</label>
+                <!-- NOTE: these values must match your ReactionType enum member names exactly -->
+                <select id="logReactionType" class="form-select mb-2">
+                    <option value=0>Breakout</option>
+                    <option value=1>Redness</option>
+                    <option value=2>Itching</option>
+                    <option value=3>Dryness</option>
+                    <option value=4>None</option>
+                </select>
+
+                <label class="form-label small">Severity (1-10)</label>
+                <input id="logReactionSeverity" type="number" min="1" max="10" class="form-control mb-2">
+
+                <label class="form-label small">Note (optional)</label>
+                <textarea id="logReactionNote" class="form-control"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-dark" onclick="confirmLogProductReaction()">Save</button>
             </div>
         </div>
     </div>
@@ -330,8 +411,8 @@
           <p class="card-text text-muted small mb-1">${escapeHtml(p.brand)}</p>
           <p class="card-text small mb-3">${(p.categories || []).map(escapeHtml).join(", ")}</p>
           <div class="d-flex gap-1">
-            <button class="btn btn-sm btn-outline-dark w-100" onclick='openAddModal("${p.id}", ${JSON.stringify(p.name)})'>Add to Inventory</button>
-            <button class="btn btn-sm btn-outline-secondary w-100" onclick='addToWishlist("${p.id}")'>Add to Wishlist</button>
+            <button class="btn btn-sm btn-outline-dark w-100" onclick='handleAddToInventoryClick("${p.id}", ${JSON.stringify(p.name)})'>Add to Inventory</button>
+            <button class="btn btn-sm btn-outline-secondary w-100" onclick='handleAddToWishlistClick("${p.id}")'>Add to Wishlist</button>
           </div>
         </div>
       </div>
@@ -364,6 +445,39 @@
             addPageItem(String(i), i, false, i === currentPage);
         }
         addPageItem("Next", currentPage + 1, currentPage === totalPages, false);
+    }
+
+    // ---- Ingredient reaction conflict check ----
+    async function getConflicts(productId) {
+        try {
+            const res = await fetch(`${API_BASE}/ingredientreaction/conflicts/${productId}`, { headers: authHeaders() });
+            if (!res.ok) return [];
+            return await res.json(); // list of ingredient names
+        } catch (err) {
+            return [];
+        }
+    }
+
+    async function handleAddToInventoryClick(productId, productName) {
+        const conflicts = await getConflicts(productId);
+        if (conflicts.length > 0) {
+            const proceed = confirm(
+                `Warning: this product contains ingredient(s) you've reacted to before:\n\n${conflicts.join(", ")}\n\nAdd to inventory anyway?`
+            );
+            if (!proceed) return;
+        }
+        openAddModal(productId, productName);
+    }
+
+    async function handleAddToWishlistClick(productId) {
+        const conflicts = await getConflicts(productId);
+        if (conflicts.length > 0) {
+            const proceed = confirm(
+                `Warning: this product contains ingredient(s) you've reacted to before:\n\n${conflicts.join(", ")}\n\nAdd to wishlist anyway?`
+            );
+            if (!proceed) return;
+        }
+        addToWishlist(productId);
     }
 
     // ---- Add to inventory ----
@@ -486,6 +600,7 @@
           <p class="small mb-2">${i.comment ? escapeHtml(i.comment) : ""}</p>
           <div class="d-flex gap-1 flex-wrap">
             <button class="btn btn-sm btn-outline-secondary" onclick='openEditModal("${i.productId}", ${JSON.stringify(i.productName)}, ${i.rating || "null"}, ${JSON.stringify(i.comment || "")})'>Edit</button>
+            <button class="btn btn-sm btn-outline-warning" onclick='openLogProductReactionModal("${i.productId}", ${JSON.stringify(i.productName)})'>Log Reaction</button>
             ${i.status === "Active" ? `<button class="btn btn-sm btn-outline-primary" onclick="transition('${i.productId}','open')">Open</button>` : ""}
             ${i.status === "Opened" ? `<button class="btn btn-sm btn-outline-success" onclick="transition('${i.productId}','finish')">Finish</button>` : ""}
             ${(i.status === "Active" || i.status === "Opened") ? `<button class="btn btn-sm btn-outline-danger" onclick="transition('${i.productId}','discard')">Discard</button>` : ""}
@@ -671,6 +786,145 @@
         } else {
             const err = await res.json().catch(() => ({}));
             alert("Could not move item: " + (err.message || res.status));
+        }
+    }
+
+    // ---- My Allergies: list with add/delete ----
+    async function loadAllergies() {
+        try {
+            const res = await fetch(`${API_BASE}/ingredientreaction`, { headers: authHeaders() });
+            if (!res.ok) throw new Error("Status " + res.status);
+            const reactions = await res.json();
+
+            const container = document.getElementById("allergyList");
+            container.innerHTML = "";
+
+            if (reactions.length === 0) {
+                container.innerHTML = `<p class="text-muted">No allergies logged yet.</p>`;
+                return;
+            }
+
+            reactions.forEach(r => {
+                const col = document.createElement("div");
+                col.className = "col-md-4";
+                col.innerHTML = `
+        <div class="card h-100">
+          <div class="card-body">
+            <h6 class="card-title">${escapeHtml(r.ingredientName)}</h6>
+            <p class="small text-muted mb-1">${escapeHtml(r.type)} — severity ${r.severity}/10</p>
+            ${r.productId ? `<p class="small text-muted mb-2">Reacted while using a specific product</p>` : `<p class="small text-muted mb-2">General allergy</p>`}
+            ${r.note ? `<p class="small mb-2">${escapeHtml(r.note)}</p>` : ""}
+            <button class="btn btn-sm btn-outline-danger" onclick="deleteAllergy('${r.id}')">Remove</button>
+          </div>
+        </div>
+      `;
+                container.appendChild(col);
+            });
+        } catch (err) {
+            document.getElementById("allergyList").innerHTML = `<p class="text-danger">Could not load allergies: ${err.message}</p>`;
+        }
+    }
+
+    async function deleteAllergy(reactionId) {
+        const res = await fetch(`${API_BASE}/ingredientreaction/${reactionId}`, {
+            method: "DELETE",
+            headers: authHeaders()
+        });
+        if (res.ok) {
+            loadAllergies();
+        } else {
+            alert("Could not remove allergy.");
+        }
+    }
+
+    async function openAddAllergyModal() {
+        const res = await fetch(`${API_BASE}/ingredient`);
+        const ingredients = await res.json();
+        const select = document.getElementById("allergyIngredient");
+        select.innerHTML = ingredients.map(ing => `<option value="${ing.id}">${escapeHtml(ing.name)}</option>`).join("");
+
+        document.getElementById("allergySeverity").value = "";
+        document.getElementById("allergyNote").value = "";
+
+        new bootstrap.Modal(document.getElementById("addAllergyModal")).show();
+    }
+
+    async function confirmAddAllergy() {
+        const severity = document.getElementById("allergySeverity").value;
+        const allergyTypeValue = document.getElementById("allergyType").value;
+        if (!severity) {
+            alert("Please enter a severity from 1 to 10.");
+            return;
+        }
+
+        const body = {
+            productId: null,
+            ingredientId: document.getElementById("allergyIngredient").value,
+            type: parseInt(allergyTypeValue, 10),
+            severity: parseInt(severity),
+            note: document.getElementById("allergyNote").value || null
+        };
+
+        const res = await fetch(`${API_BASE}/ingredientreaction`, {
+            method: "POST",
+            headers: authHeaders(),
+            body: JSON.stringify(body)
+        });
+
+        bootstrap.Modal.getInstance(document.getElementById("addAllergyModal")).hide();
+
+        if (res.ok) {
+            loadAllergies();
+        } else {
+            const err = await res.json().catch(() => ({}));
+            alert("Could not save allergy: " + (err.message || res.status));
+        }
+    }
+
+    // ---- Log a reaction to a specific product you own (uses the full User-Product-Ingredient relation) ----
+    async function openLogProductReactionModal(productId, productName) {
+        document.getElementById("logReactionProductId").value = productId;
+        document.getElementById("logReactionProductName").innerText = productName;
+        document.getElementById("logReactionSeverity").value = "";
+        document.getElementById("logReactionNote").value = "";
+
+        const res = await fetch(`${API_BASE}/ingredient`);
+        const ingredients = await res.json();
+        const select = document.getElementById("logReactionIngredient");
+        select.innerHTML = ingredients.map(ing => `<option value="${ing.id}">${escapeHtml(ing.name)}</option>`).join("");
+
+        new bootstrap.Modal(document.getElementById("logProductReactionModal")).show();
+    }
+
+    async function confirmLogProductReaction() {
+        const severity = document.getElementById("logReactionSeverity").value;
+        const logReactionTypeValue = document.getElementById("logReactionType").value;
+        if (!severity) {
+            alert("Please enter a severity from 1 to 10.");
+            return;
+        }
+        
+        const body = {
+            productId: document.getElementById("logReactionProductId").value,
+            ingredientId: document.getElementById("logReactionIngredient").value,
+            type: parseInt(logReactionTypeValue, 10),
+            severity: parseInt(severity),
+            note: document.getElementById("logReactionNote").value || null
+        };
+
+        const res = await fetch(`${API_BASE}/ingredientreaction`, {
+            method: "POST",
+            headers: authHeaders(),
+            body: JSON.stringify(body)
+        });
+
+        bootstrap.Modal.getInstance(document.getElementById("logProductReactionModal")).hide();
+
+        if (res.ok) {
+            alert("Reaction logged.");
+        } else {
+            const err = await res.json().catch(() => ({}));
+            alert("Could not log reaction: " + (err.message || res.status));
         }
     }
 

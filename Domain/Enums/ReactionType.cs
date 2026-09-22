@@ -2,5 +2,5 @@ namespace Domain.Enums;
 
 public enum ReactionType
 {
-    Breakout, Redness, None
+    Breakout, Redness, Itching, Dryness, None
 }

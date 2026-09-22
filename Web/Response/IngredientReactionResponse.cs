@@ -2,7 +2,7 @@ namespace Web.Response;
 
 public record IngredientReactionResponse(
     Guid Id,
-    Guid ProductId,
+    Guid? ProductId,
     Guid IngredientId,
     string IngredientName,
     string Type,

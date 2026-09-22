@@ -36,6 +36,7 @@ builder.Services.AddScoped<InventoryItemMapper>();
 builder.Services.AddScoped<CategoryMapper>();
 builder.Services.AddScoped<IngredientReactionMapper>();
 builder.Services.AddSingleton<IExpirationCalculator, ExpirationCalculator>();
+builder.Services.AddScoped<IngredientMapper>();
 /*
 builder.Services.AddHostedService<BackgroundEtlSyncJob>();
 builder.Services.AddHostedService<BackgroundExpirationCheckJob>();

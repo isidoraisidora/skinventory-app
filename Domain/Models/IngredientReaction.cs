@@ -8,8 +8,8 @@ public class IngredientReaction : BaseAuditableEntity
 { 
     public required Guid UserId { get; set; }
     public virtual User User { get; set; } = null!;
-    public required Guid ProductId { get; set; }
-    public virtual Product Product { get; set; } = null!;
+    public required Guid? ProductId { get; set; }
+    public virtual Product? Product { get; set; } = null!;
 
     public required Guid IngredientId { get; set; }
     public virtual Ingredient Ingredient { get; set; } = null!;
