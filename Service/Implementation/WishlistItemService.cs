@@ -11,13 +11,15 @@ public class WishlistItemService : IWishlistItemService
 {
     private readonly ICurrentUserService _currentUserService;
     private readonly IRepository<WishlistItem> _wishlistRepository;
+    private readonly IRepository<InventoryItem> _inventoryRepository;
     private readonly IInventoryItemService _inventoryItemService;
 
-    public WishlistItemService(ICurrentUserService currentUserService, IRepository<WishlistItem> wishlistRepository, IInventoryItemService inventoryItemService)
+    public WishlistItemService(ICurrentUserService currentUserService, IRepository<WishlistItem> wishlistRepository, IInventoryItemService inventoryItemService, IRepository<InventoryItem> inventoryRepository)
     {
         _currentUserService = currentUserService;
         _wishlistRepository = wishlistRepository;
         _inventoryItemService = inventoryItemService;
+        _inventoryRepository = inventoryRepository;
     }
 
     public async Task<List<WishlistItem>> GetAllWishlistProducts()
@@ -79,7 +81,9 @@ public class WishlistItemService : IWishlistItemService
         var inventoryItem = await _inventoryItemService.AddProductToOwned(dto);
 
         wishlistItem.WishlistStatus = WishlistStatus.Discarded;
+        inventoryItem.ProductStatus = ProductStatus.Active;
         await _wishlistRepository.UpdateAsync(wishlistItem);
+        await _inventoryRepository.UpdateAsync(inventoryItem);
 
         return inventoryItem;
     }
