@@ -10,10 +10,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web", "Web\Web.csproj", "{7
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E03D7D4A-31F3-4BCC-9ABB-C4FD71354346}"
 	ProjectSection(SolutionItems) = preProject
-		cicd.yaml = cicd.yaml
 		Dockerfile = Dockerfile
 		.dockerignore = .dockerignore
 		.env = .env
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{20D16B5F-0B2A-4235-BB12-22922CFBF532}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{0B2A34D0-B02F-4185-8F64-7D05DFCE283E}"
+	ProjectSection(SolutionItems) = preProject
+		cicd.yaml = cicd.yaml
 	EndProjectSection
 EndProject
 Global
@@ -38,5 +44,8 @@ Global
 		{7CB26D95-B98D-4540-8919-F33E5ED249B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7CB26D95-B98D-4540-8919-F33E5ED249B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7CB26D95-B98D-4540-8919-F33E5ED249B6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0B2A34D0-B02F-4185-8F64-7D05DFCE283E} = {20D16B5F-0B2A-4235-BB12-22922CFBF532}
 	EndGlobalSection
 EndGlobal
