@@ -55,7 +55,6 @@ builder.Services.AddQuartz(q =>
     q.AddTrigger(opts => opts
         .ForJob(jobKey)
         .WithIdentity("EtlSyncJob-trigger")
-        .StartNow()
         .WithSimpleSchedule(x => x
             .WithIntervalInHours(24)
             .RepeatForever()));
