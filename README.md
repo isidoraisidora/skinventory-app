@@ -11,6 +11,8 @@ A skincare inventory management system built with ASP.NET Core. Users can browse
 - **Scheduling:** Quartz.NET
 - **Email:** MailKit (SMTP)
 - **External API:** Open Beauty Facts (`world.openbeautyfacts.org`)
+- **Containerization:** Docker (multi-stage build, non-root runtime image, persistent volume for SQLite)
+- **CI/CD:** GitHub Actions, publishing images to GitHub Container Registry (GHCR)
 
 ## Architecture
 
@@ -140,7 +142,69 @@ A single-page frontend (`Web/wwwroot/index.html`) is served as a static file fro
 - **My Allergies** — a list of logged ingredient reactions (general or product-specific), with add/remove
 - Ingredient conflict warnings shown before adding a product to inventory or wishlist
 
+## Docker
+
+The application is containerized with a multi-stage `Dockerfile` in the repository root:
+
+- **Build stage:** uses the .NET 10 SDK image to restore dependencies (project files are copied first so the restore layer is cached) and publish the `Web` project in Release mode.
+- **Runtime stage:** uses the much smaller ASP.NET 10 runtime image and contains only the published output, with no SDK or source code. The app runs as a non-root user and listens on port `8080`.
+- **Persistent data:** the SQLite database lives at `/data/app.db`, which is declared as a volume. Mounting a named volume there keeps your data across container restarts and redeployments.
+- **Configuration:** secrets are never baked into the image. They are passed at runtime as environment variables, where a double underscore replaces the `:` of nested configuration keys (for example `Jwt__Key` for `Jwt:Key`).
+
+### Run with Docker
+
+The only prerequisite is Docker; no .NET SDK is needed.
+
+1. Create a `.env` file in the repository root (it is git-ignored):
+   ```
+   Jwt__Key=replace-with-a-long-random-string-of-at-least-32-characters
+   Email__Password=replace-with-your-gmail-app-password
+   ```
+   `Jwt__Key` is required, since without it the app returns `500` errors on any request that reaches authentication. `Email__Password` is only needed for the expiration reminder emails.
+2. Build and run:
+   ```bash
+   docker build -t skinventory .
+   docker run -d --name skincare-app -p 8080:8080 -v skinventory-data:/data --env-file .env skinventory
+   ```
+3. Open `http://localhost:8080/index.html`.
+
+Useful commands:
+
+```bash
+docker logs skincare-app     # view application logs
+docker stop skincare-app     # stop the app
+docker rm -f skincare-app    # remove the container (the data volume is kept)
+```
+
+Note that an image is a snapshot of the code at build time, so after changing code you need to rebuild the image and recreate the container.
+
+## CI/CD
+
+A GitHub Actions workflow (`.github/workflows/cicd.yaml`) runs automatically on every push and pull request to `main`:
+
+| Job | Trigger | What it does |
+|---|---|---|
+| `build` | push and pull request | Checks out the code, installs .NET 10, restores packages and compiles the `Web` project in Release mode, so a broken build is caught immediately |
+| `docker` | after `build` succeeds | Builds the Docker image with Buildx (using layer caching). On pushes to `main`, it also logs in to GHCR with the built-in `GITHUB_TOKEN` and publishes the image tagged `latest` and with the commit SHA. On pull requests it only builds, to verify the Dockerfile works |
+
+No extra repository secrets are required, because authentication uses the automatically provided `GITHUB_TOKEN`.
+
+### Run the published image
+
+Instead of building locally, you can pull the image built by the pipeline:
+
+```bash
+docker run -d -p 8080:8080 -v skinventory-data:/data \
+  -e Jwt__Key=replace-with-a-long-random-string \
+  ghcr.io/<github-username>/<repository-name>:latest
+```
+
+Replace `<github-username>` and `<repository-name>` with the lowercase values for this repository. The package must be set to public in the GitHub package settings for others to pull it without logging in.
+
 ## Getting Started
+
+The steps below run the app directly with the .NET SDK. To run it with Docker instead, see [Run with Docker](#run-with-docker).
+
 
 ### Prerequisites
 - .NET 10 SDK
@@ -184,4 +248,5 @@ Requests with a body must have their Content-Type set to JSON in Postman (the "r
 - Open Beauty Facts does not provide pricing or fixed expiration dates — these are either left blank on import or filled in manually by the user.
 - Category and ingredient assignment are derived from which search query found a product; a product may receive no category or no ingredients if it doesn't appear in any configured category search, or if its ingredient text couldn't be parsed cleanly.
 - The email queue is in-process (`System.Threading.Channels`), so queued messages are lost if the application restarts before they're processed. A production deployment would use a persistent broker (e.g. RabbitMQ) instead.
+- The SQLite database is a single file, so the Docker setup supports one running container per volume. Scaling to multiple replicas would require moving to a client-server database such as PostgreSQL.
 - `Category` does not expose create/update/delete endpoints, since it is treated as a fixed, seeded taxonomy rather than user-editable data.
